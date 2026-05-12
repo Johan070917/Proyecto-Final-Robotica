@@ -1,0 +1,25 @@
+# Entornos virtuales
+.venv/
+venv/
+env/
+
+# Caches de Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# ROS 2 build artifacts
+ros2_ws/ros2_ws/build/
+ros2_ws/ros2_ws/install/
+ros2_ws/ros2_ws/log/
+
+# OpenCV snapshots generados por el detector
+vision_cenital/snapshot_*.png
+
+# Editor / OS
+.vscode/settings.json
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
