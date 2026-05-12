@@ -1,0 +1,5 @@
+[console_scripts]
+robot_core = diff_bot_3.robot_core:main
+robot_interface = diff_bot_3.robot_interface:main
+robot_player = diff_bot_3.robot_player:main
+robot_teleop = diff_bot_3.robot_teleop:main

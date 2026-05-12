@@ -1,0 +1,27 @@
+running egg_info
+writing ../../build/turtle_bot_3/turtle_bot_3.egg-info/PKG-INFO
+writing dependency_links to ../../build/turtle_bot_3/turtle_bot_3.egg-info/dependency_links.txt
+writing entry points to ../../build/turtle_bot_3/turtle_bot_3.egg-info/entry_points.txt
+writing requirements to ../../build/turtle_bot_3/turtle_bot_3.egg-info/requires.txt
+writing top-level names to ../../build/turtle_bot_3/turtle_bot_3.egg-info/top_level.txt
+reading manifest file '../../build/turtle_bot_3/turtle_bot_3.egg-info/SOURCES.txt'
+writing manifest file '../../build/turtle_bot_3/turtle_bot_3.egg-info/SOURCES.txt'
+running build
+running build_py
+copying turtle_bot_3/turtle_bot_player.py -> /home/robotica/ros2_ws/build/turtle_bot_3/build/lib/turtle_bot_3
+copying turtle_bot_3/turtle_bot_interface.py -> /home/robotica/ros2_ws/build/turtle_bot_3/build/lib/turtle_bot_3
+running install
+running install_lib
+copying /home/robotica/ros2_ws/build/turtle_bot_3/build/lib/turtle_bot_3/turtle_bot_player.py -> /home/robotica/ros2_ws/install/turtle_bot_3/lib/python3.10/site-packages/turtle_bot_3
+copying /home/robotica/ros2_ws/build/turtle_bot_3/build/lib/turtle_bot_3/turtle_bot_interface.py -> /home/robotica/ros2_ws/install/turtle_bot_3/lib/python3.10/site-packages/turtle_bot_3
+byte-compiling /home/robotica/ros2_ws/install/turtle_bot_3/lib/python3.10/site-packages/turtle_bot_3/turtle_bot_player.py to turtle_bot_player.cpython-310.pyc
+byte-compiling /home/robotica/ros2_ws/install/turtle_bot_3/lib/python3.10/site-packages/turtle_bot_3/turtle_bot_interface.py to turtle_bot_interface.cpython-310.pyc
+running install_data
+running install_egg_info
+removing '/home/robotica/ros2_ws/install/turtle_bot_3/lib/python3.10/site-packages/turtle_bot_3-0.0.0-py3.10.egg-info' (and everything under it)
+Copying ../../build/turtle_bot_3/turtle_bot_3.egg-info to /home/robotica/ros2_ws/install/turtle_bot_3/lib/python3.10/site-packages/turtle_bot_3-0.0.0-py3.10.egg-info
+running install_scripts
+Installing turtle_bot_interface script to /home/robotica/ros2_ws/install/turtle_bot_3/lib/turtle_bot_3
+Installing turtle_bot_player script to /home/robotica/ros2_ws/install/turtle_bot_3/lib/turtle_bot_3
+Installing turtle_bot_teleop script to /home/robotica/ros2_ws/install/turtle_bot_3/lib/turtle_bot_3
+writing list of installed files to '/home/robotica/ros2_ws/build/turtle_bot_3/install.log'

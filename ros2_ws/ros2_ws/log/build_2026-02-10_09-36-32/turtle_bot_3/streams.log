@@ -1,0 +1,23 @@
+[1.643s] Invoking command in '/home/robotica/ros2_ws/src/turtle_bot_3': PYTHONPATH=/home/robotica/ros2_ws/build/turtle_bot_3/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/robotica/ros2_ws/install/turtle_bot_3/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/turtle_bot_3 build --build-base /home/robotica/ros2_ws/build/turtle_bot_3/build install --record /home/robotica/ros2_ws/build/turtle_bot_3/install.log --single-version-externally-managed install_data
+[2.198s] running egg_info
+[2.203s] writing ../../build/turtle_bot_3/turtle_bot_3.egg-info/PKG-INFO
+[2.204s] writing dependency_links to ../../build/turtle_bot_3/turtle_bot_3.egg-info/dependency_links.txt
+[2.206s] writing entry points to ../../build/turtle_bot_3/turtle_bot_3.egg-info/entry_points.txt
+[2.207s] writing requirements to ../../build/turtle_bot_3/turtle_bot_3.egg-info/requires.txt
+[2.208s] writing top-level names to ../../build/turtle_bot_3/turtle_bot_3.egg-info/top_level.txt
+[2.216s] reading manifest file '../../build/turtle_bot_3/turtle_bot_3.egg-info/SOURCES.txt'
+[2.220s] writing manifest file '../../build/turtle_bot_3/turtle_bot_3.egg-info/SOURCES.txt'
+[2.221s] running build
+[2.222s] running build_py
+[2.224s] running install
+[2.225s] running install_lib
+[2.232s] running install_data
+[2.234s] running install_egg_info
+[2.247s] removing '/home/robotica/ros2_ws/install/turtle_bot_3/lib/python3.10/site-packages/turtle_bot_3-0.0.0-py3.10.egg-info' (and everything under it)
+[2.248s] Copying ../../build/turtle_bot_3/turtle_bot_3.egg-info to /home/robotica/ros2_ws/install/turtle_bot_3/lib/python3.10/site-packages/turtle_bot_3-0.0.0-py3.10.egg-info
+[2.248s] running install_scripts
+[2.295s] Installing turtle_bot_interface script to /home/robotica/ros2_ws/install/turtle_bot_3/lib/turtle_bot_3
+[2.296s] Installing turtle_bot_player script to /home/robotica/ros2_ws/install/turtle_bot_3/lib/turtle_bot_3
+[2.297s] Installing turtle_bot_teleop script to /home/robotica/ros2_ws/install/turtle_bot_3/lib/turtle_bot_3
+[2.299s] writing list of installed files to '/home/robotica/ros2_ws/build/turtle_bot_3/install.log'
+[2.382s] Invoked command in '/home/robotica/ros2_ws/src/turtle_bot_3' returned '0': PYTHONPATH=/home/robotica/ros2_ws/build/turtle_bot_3/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/robotica/ros2_ws/install/turtle_bot_3/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/turtle_bot_3 build --build-base /home/robotica/ros2_ws/build/turtle_bot_3/build install --record /home/robotica/ros2_ws/build/turtle_bot_3/install.log --single-version-externally-managed install_data

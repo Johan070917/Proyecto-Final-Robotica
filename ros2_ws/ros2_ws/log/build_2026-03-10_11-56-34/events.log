@@ -1,0 +1,88 @@
+[0.000000] (-) TimerEvent: {}
+[0.000362] (diff_bot_3) JobQueued: {'identifier': 'diff_bot_3', 'dependencies': OrderedDict()}
+[0.000695] (diff_bot_3) JobStarted: {'identifier': 'diff_bot_3'}
+[0.099712] (-) TimerEvent: {}
+[0.200094] (-) TimerEvent: {}
+[0.300412] (-) TimerEvent: {}
+[0.400764] (-) TimerEvent: {}
+[0.501125] (-) TimerEvent: {}
+[0.601430] (-) TimerEvent: {}
+[0.701738] (-) TimerEvent: {}
+[0.802061] (-) TimerEvent: {}
+[0.902403] (-) TimerEvent: {}
+[1.002738] (-) TimerEvent: {}
+[1.103084] (-) TimerEvent: {}
+[1.203433] (-) TimerEvent: {}
+[1.303754] (-) TimerEvent: {}
+[1.404096] (-) TimerEvent: {}
+[1.504403] (-) TimerEvent: {}
+[1.604732] (-) TimerEvent: {}
+[1.705088] (-) TimerEvent: {}
+[1.805388] (-) TimerEvent: {}
+[1.905684] (-) TimerEvent: {}
+[2.006036] (-) TimerEvent: {}
+[2.057913] (diff_bot_3) Command: {'cmd': ['/usr/bin/python3', '-W', 'ignore:setup.py install is deprecated', '-W', 'ignore:easy_install command is deprecated', 'setup.py', 'egg_info', '--egg-base', '../../build/diff_bot_3', 'build', '--build-base', '/home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build', 'install', '--record', '/home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/install.log', '--single-version-externally-managed', 'install_data'], 'cwd': '/home/johan/Taller-2-Robotica/ros2_ws/src/diff_bot_3', 'env': {'LESSOPEN': '| /usr/bin/lesspipe %s', 'USER': 'johan', 'XDG_SESSION_TYPE': 'wayland', 'SHLVL': '1', 'LD_LIBRARY_PATH': '/opt/ros/jazzy/opt/rviz_ogre_vendor/lib:/opt/ros/jazzy/lib/aarch64-linux-gnu:/opt/ros/jazzy/opt/gz_math_vendor/lib:/opt/ros/jazzy/opt/gz_utils_vendor/lib:/opt/ros/jazzy/opt/gz_cmake_vendor/lib:/opt/ros/jazzy/lib', 'HOME': '/home/johan', 'OLDPWD': '/home/johan', 'DESKTOP_SESSION': 'ubuntu', 'ROS_PYTHON_VERSION': '3', 'GNOME_SHELL_SESSION_MODE': 'ubuntu', 'GTK_MODULES': 'gail:atk-bridge', 'SYSTEMD_EXEC_PID': '2361', 'GSM_SKIP_SSH_AGENT_WORKAROUND': 'true', 'DBUS_SESSION_BUS_ADDRESS': 'unix:path=/run/user/1000/bus', 'COLORTERM': 'truecolor', 'GNOME_KEYRING_CONTROL': '/run/user/1000/keyring', 'DEBUGINFOD_URLS': 'https://debuginfod.ubuntu.com', 'IM_CONFIG_PHASE': '1', 'WAYLAND_DISPLAY': 'wayland-0', 'COLCON_PREFIX_PATH': '/home/johan/ros2_ws/install', 'ROS_DISTRO': 'jazzy', 'LOGNAME': 'johan', '_': '/usr/bin/colcon', 'ROS_VERSION': '2', 'MEMORY_PRESSURE_WATCH': '/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/session.slice/org.gnome.SettingsDaemon.MediaKeys.service/memory.pressure', 'XDG_SESSION_CLASS': 'user', 'USERNAME': 'johan', 'TERM': 'xterm-256color', 'GNOME_DESKTOP_SESSION_ID': 'this-is-deprecated', 'PATH': '/opt/ros/jazzy/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin', 'SESSION_MANAGER': 'local/johan-desktop:@/tmp/.ICE-unix/2192,unix/johan-desktop:/tmp/.ICE-unix/2192', 'XDG_MENU_PREFIX': 'gnome-', 'GNOME_TERMINAL_SCREEN': '/org/gnome/Terminal/screen/9c7eba77_3cf3_4af4_9362_475cc0146c8a', 'GNOME_SETUP_DISPLAY': ':1', 'XDG_RUNTIME_DIR': '/run/user/1000', 'DISPLAY': ':0', 'LANG': 'en_US.UTF-8', 'XDG_CURRENT_DESKTOP': 'ubuntu:GNOME', 'XMODIFIERS': '@im=ibus', 'XDG_SESSION_DESKTOP': 'ubuntu', 'XAUTHORITY': '/run/user/1000/.mutter-Xwaylandauth.39V2L3', 'LS_COLORS': 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=00:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.avif=01;35:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:*~=00;90:*#=00;90:*.bak=00;90:*.crdownload=00;90:*.dpkg-dist=00;90:*.dpkg-new=00;90:*.dpkg-old=00;90:*.dpkg-tmp=00;90:*.old=00;90:*.orig=00;90:*.part=00;90:*.rej=00;90:*.rpmnew=00;90:*.rpmorig=00;90:*.rpmsave=00;90:*.swp=00;90:*.tmp=00;90:*.ucf-dist=00;90:*.ucf-new=00;90:*.ucf-old=00;90:', 'GNOME_TERMINAL_SERVICE': ':1.173', 'SSH_AUTH_SOCK': '/run/user/1000/keyring/ssh', 'AMENT_PREFIX_PATH': '/home/johan/ros2_ws/install/taller2:/opt/ros/jazzy', 'SHELL': '/bin/bash', 'QT_ACCESSIBILITY': '1', 'GDMSESSION': 'ubuntu', 'LESSCLOSE': '/usr/bin/lesspipe %s %s', 'ROS_AUTOMATIC_DISCOVERY_RANGE': 'SUBNET', 'QT_IM_MODULE': 'ibus', 'PWD': '/home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3', 'LC_ALL': 'en_US.UTF-8', 'XDG_CONFIG_DIRS': '/etc/xdg/xdg-ubuntu:/etc/xdg', 'XDG_DATA_DIRS': '/usr/share/ubuntu:/usr/share/gnome:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop', 'PYTHONPATH': '/home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages:/home/johan/ros2_ws/install/taller2/lib/python3.12/site-packages:/opt/ros/jazzy/lib/python3.12/site-packages', 'COLCON': '1', 'MEMORY_PRESSURE_WRITE': 'c29tZSAyMDAwMDAgMjAwMDAwMAA=', 'VTE_VERSION': '7600', 'CMAKE_PREFIX_PATH': '/opt/ros/jazzy/opt/gz_math_vendor:/opt/ros/jazzy/opt/gz_utils_vendor:/opt/ros/jazzy/opt/gz_cmake_vendor'}, 'shell': False}
+[2.106119] (-) TimerEvent: {}
+[2.206425] (-) TimerEvent: {}
+[2.306737] (-) TimerEvent: {}
+[2.407059] (-) TimerEvent: {}
+[2.488865] (diff_bot_3) StdoutLine: {'line': b'running egg_info\n'}
+[2.489588] (diff_bot_3) StdoutLine: {'line': b'creating ../../build/diff_bot_3/diff_bot_3.egg-info\n'}
+[2.507179] (-) TimerEvent: {}
+[2.528218] (diff_bot_3) StdoutLine: {'line': b'writing ../../build/diff_bot_3/diff_bot_3.egg-info/PKG-INFO\n'}
+[2.529459] (diff_bot_3) StdoutLine: {'line': b'writing dependency_links to ../../build/diff_bot_3/diff_bot_3.egg-info/dependency_links.txt\n'}
+[2.529769] (diff_bot_3) StdoutLine: {'line': b'writing entry points to ../../build/diff_bot_3/diff_bot_3.egg-info/entry_points.txt\n'}
+[2.531633] (diff_bot_3) StdoutLine: {'line': b'writing requirements to ../../build/diff_bot_3/diff_bot_3.egg-info/requires.txt\n'}
+[2.532002] (diff_bot_3) StdoutLine: {'line': b'writing top-level names to ../../build/diff_bot_3/diff_bot_3.egg-info/top_level.txt\n'}
+[2.532241] (diff_bot_3) StdoutLine: {'line': b"writing manifest file '../../build/diff_bot_3/diff_bot_3.egg-info/SOURCES.txt'\n"}
+[2.604377] (diff_bot_3) StdoutLine: {'line': b"reading manifest file '../../build/diff_bot_3/diff_bot_3.egg-info/SOURCES.txt'\n"}
+[2.605710] (diff_bot_3) StdoutLine: {'line': b"writing manifest file '../../build/diff_bot_3/diff_bot_3.egg-info/SOURCES.txt'\n"}
+[2.606025] (diff_bot_3) StdoutLine: {'line': b'running build\n'}
+[2.606204] (diff_bot_3) StdoutLine: {'line': b'running build_py\n'}
+[2.606530] (diff_bot_3) StdoutLine: {'line': b'creating /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/diff_bot_3\n'}
+[2.606751] (diff_bot_3) StdoutLine: {'line': b'copying diff_bot_3/diferencial_player.py -> /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/diff_bot_3\n'}
+[2.607236] (-) TimerEvent: {}
+[2.614428] (diff_bot_3) StdoutLine: {'line': b'copying diff_bot_3/diferencial_odometria.py -> /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/diff_bot_3\n'}
+[2.614901] (diff_bot_3) StdoutLine: {'line': b'copying diff_bot_3/robot_interface.py -> /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/diff_bot_3\n'}
+[2.617088] (diff_bot_3) StdoutLine: {'line': b'copying diff_bot_3/__init__.py -> /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/diff_bot_3\n'}
+[2.621235] (diff_bot_3) StdoutLine: {'line': b'copying diff_bot_3/robot_player.py -> /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/diff_bot_3\n'}
+[2.622488] (diff_bot_3) StdoutLine: {'line': b'copying diff_bot_3/diferencial_teleop.py -> /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/diff_bot_3\n'}
+[2.623585] (diff_bot_3) StdoutLine: {'line': b'copying diff_bot_3/robot_teleop.py -> /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/diff_bot_3\n'}
+[2.624748] (diff_bot_3) StdoutLine: {'line': b'copying diff_bot_3/robot_core.py -> /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/diff_bot_3\n'}
+[2.626659] (diff_bot_3) StdoutLine: {'line': b'copying diff_bot_3/diferencial_interface.py -> /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/diff_bot_3\n'}
+[2.633178] (diff_bot_3) StdoutLine: {'line': b'running install\n'}
+[2.657033] (diff_bot_3) StdoutLine: {'line': b'running install_lib\n'}
+[2.684284] (diff_bot_3) StdoutLine: {'line': b'creating /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/turtle_bot_3\n'}
+[2.684604] (diff_bot_3) StdoutLine: {'line': b'copying /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/turtle_bot_3/turtle_bot_player.py -> /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/turtle_bot_3\n'}
+[2.684994] (diff_bot_3) StdoutLine: {'line': b'copying /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/turtle_bot_3/__init__.py -> /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/turtle_bot_3\n'}
+[2.685158] (diff_bot_3) StdoutLine: {'line': b'copying /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/turtle_bot_3/turtle_bot_interface.py -> /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/turtle_bot_3\n'}
+[2.685517] (diff_bot_3) StdoutLine: {'line': b'copying /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/turtle_bot_3/turtle_bot_teleop.py -> /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/turtle_bot_3\n'}
+[2.685922] (diff_bot_3) StdoutLine: {'line': b'creating /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/diff_bot_3\n'}
+[2.686066] (diff_bot_3) StdoutLine: {'line': b'copying /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/diff_bot_3/diferencial_player.py -> /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/diff_bot_3\n'}
+[2.686222] (diff_bot_3) StdoutLine: {'line': b'copying /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/diff_bot_3/diferencial_odometria.py -> /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/diff_bot_3\n'}
+[2.686387] (diff_bot_3) StdoutLine: {'line': b'copying /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/diff_bot_3/robot_interface.py -> /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/diff_bot_3\n'}
+[2.686527] (diff_bot_3) StdoutLine: {'line': b'copying /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/diff_bot_3/__init__.py -> /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/diff_bot_3\n'}
+[2.686655] (diff_bot_3) StdoutLine: {'line': b'copying /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/diff_bot_3/robot_player.py -> /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/diff_bot_3\n'}
+[2.686811] (diff_bot_3) StdoutLine: {'line': b'copying /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/diff_bot_3/diferencial_teleop.py -> /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/diff_bot_3\n'}
+[2.686989] (diff_bot_3) StdoutLine: {'line': b'copying /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/diff_bot_3/robot_teleop.py -> /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/diff_bot_3\n'}
+[2.687134] (diff_bot_3) StdoutLine: {'line': b'copying /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/diff_bot_3/robot_core.py -> /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/diff_bot_3\n'}
+[2.687287] (diff_bot_3) StdoutLine: {'line': b'copying /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/diff_bot_3/diferencial_interface.py -> /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/diff_bot_3\n'}
+[2.688088] (diff_bot_3) StdoutLine: {'line': b'byte-compiling /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/turtle_bot_3/turtle_bot_player.py to turtle_bot_player.cpython-312.pyc\n'}
+[2.689575] (diff_bot_3) StdoutLine: {'line': b'byte-compiling /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/turtle_bot_3/__init__.py to __init__.cpython-312.pyc\n'}
+[2.689856] (diff_bot_3) StdoutLine: {'line': b'byte-compiling /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/turtle_bot_3/turtle_bot_interface.py to turtle_bot_interface.cpython-312.pyc\n'}
+[2.691229] (diff_bot_3) StdoutLine: {'line': b'byte-compiling /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/turtle_bot_3/turtle_bot_teleop.py to turtle_bot_teleop.cpython-312.pyc\n'}
+[2.692038] (diff_bot_3) StdoutLine: {'line': b'byte-compiling /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/diff_bot_3/diferencial_player.py to diferencial_player.cpython-312.pyc\n'}
+[2.692992] (diff_bot_3) StdoutLine: {'line': b'byte-compiling /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/diff_bot_3/diferencial_odometria.py to diferencial_odometria.cpython-312.pyc\n'}
+[2.693600] (diff_bot_3) StdoutLine: {'line': b'byte-compiling /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/diff_bot_3/robot_interface.py to robot_interface.cpython-312.pyc\n'}
+[2.694845] (diff_bot_3) StdoutLine: {'line': b'byte-compiling /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/diff_bot_3/__init__.py to __init__.cpython-312.pyc\n'}
+[2.695076] (diff_bot_3) StdoutLine: {'line': b'byte-compiling /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/diff_bot_3/robot_player.py to robot_player.cpython-312.pyc\n'}
+[2.695947] (diff_bot_3) StdoutLine: {'line': b'byte-compiling /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/diff_bot_3/diferencial_teleop.py to diferencial_teleop.cpython-312.pyc\n'}
+[2.696650] (diff_bot_3) StdoutLine: {'line': b'byte-compiling /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/diff_bot_3/robot_teleop.py to robot_teleop.cpython-312.pyc\n'}
+[2.697359] (diff_bot_3) StdoutLine: {'line': b'byte-compiling /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/diff_bot_3/robot_core.py to robot_core.cpython-312.pyc\n'}
+[2.698668] (diff_bot_3) StdoutLine: {'line': b'byte-compiling /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/diff_bot_3/diferencial_interface.py to diferencial_interface.cpython-312.pyc\n'}
+[2.699887] (diff_bot_3) StdoutLine: {'line': b'running install_data\n'}
+[2.700094] (diff_bot_3) StderrLine: {'line': b"error: can't copy 'resource/diff_bot_3': doesn't exist or not a regular file\n"}
+[2.707330] (-) TimerEvent: {}
+[2.768991] (diff_bot_3) CommandEnded: {'returncode': 1}
+[2.769485] (diff_bot_3) JobEnded: {'identifier': 'diff_bot_3', 'rc': 1}
+[2.781432] (-) EventReactorShutdown: {}

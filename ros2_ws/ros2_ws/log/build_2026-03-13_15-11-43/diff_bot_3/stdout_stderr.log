@@ -1,0 +1,23 @@
+running egg_info
+writing ../../build/diff_bot_3/diff_bot_3.egg-info/PKG-INFO
+writing dependency_links to ../../build/diff_bot_3/diff_bot_3.egg-info/dependency_links.txt
+writing entry points to ../../build/diff_bot_3/diff_bot_3.egg-info/entry_points.txt
+writing requirements to ../../build/diff_bot_3/diff_bot_3.egg-info/requires.txt
+writing top-level names to ../../build/diff_bot_3/diff_bot_3.egg-info/top_level.txt
+reading manifest file '../../build/diff_bot_3/diff_bot_3.egg-info/SOURCES.txt'
+writing manifest file '../../build/diff_bot_3/diff_bot_3.egg-info/SOURCES.txt'
+running build
+running build_py
+running install
+running install_lib
+running install_data
+copying launch/robot_launch.py -> /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/share/diff_bot_3/launch
+running install_egg_info
+removing '/home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/diff_bot_3-0.0.0-py3.12.egg-info' (and everything under it)
+Copying ../../build/diff_bot_3/diff_bot_3.egg-info to /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/diff_bot_3-0.0.0-py3.12.egg-info
+running install_scripts
+Installing robot_core script to /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/diff_bot_3
+Installing robot_interface script to /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/diff_bot_3
+Installing robot_player script to /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/diff_bot_3
+Installing robot_teleop script to /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/diff_bot_3
+writing list of installed files to '/home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/install.log'

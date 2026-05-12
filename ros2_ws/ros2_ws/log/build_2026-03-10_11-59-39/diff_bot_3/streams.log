@@ -1,0 +1,27 @@
+[1.390s] Invoking command in '/home/johan/Taller-2-Robotica/ros2_ws/src/diff_bot_3': DEBUGINFOD_URLS=https://debuginfod.ubuntu.com PYTHONPATH=/home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/diff_bot_3 build --build-base /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build install --record /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/install.log --single-version-externally-managed install_data
+[1.808s] running egg_info
+[1.845s] writing ../../build/diff_bot_3/diff_bot_3.egg-info/PKG-INFO
+[1.846s] writing dependency_links to ../../build/diff_bot_3/diff_bot_3.egg-info/dependency_links.txt
+[1.849s] writing entry points to ../../build/diff_bot_3/diff_bot_3.egg-info/entry_points.txt
+[1.849s] writing requirements to ../../build/diff_bot_3/diff_bot_3.egg-info/requires.txt
+[1.849s] writing top-level names to ../../build/diff_bot_3/diff_bot_3.egg-info/top_level.txt
+[1.903s] reading manifest file '../../build/diff_bot_3/diff_bot_3.egg-info/SOURCES.txt'
+[1.904s] writing manifest file '../../build/diff_bot_3/diff_bot_3.egg-info/SOURCES.txt'
+[1.904s] running build
+[1.905s] running build_py
+[1.905s] running install
+[1.919s] running install_lib
+[1.950s] running install_data
+[1.950s] copying resource/diff_bot_3 -> /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/share/ament_index/resource_index/packages
+[1.950s] copying package.xml -> /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/share/diff_bot_3
+[1.950s] creating /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/share/diff_bot_3/launch
+[1.950s] copying launch/robot_launch.py -> /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/share/diff_bot_3/launch
+[1.951s] running install_egg_info
+[1.979s] Copying ../../build/diff_bot_3/diff_bot_3.egg-info to /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/diff_bot_3-0.0.0-py3.12.egg-info
+[1.980s] running install_scripts
+[2.187s] Installing robot_core script to /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/turtle_bot_3
+[2.188s] Installing robot_interface script to /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/turtle_bot_3
+[2.188s] Installing robot_player script to /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/turtle_bot_3
+[2.188s] Installing robot_teleop script to /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/turtle_bot_3
+[2.189s] writing list of installed files to '/home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/install.log'
+[2.294s] Invoked command in '/home/johan/Taller-2-Robotica/ros2_ws/src/diff_bot_3' returned '0': DEBUGINFOD_URLS=https://debuginfod.ubuntu.com PYTHONPATH=/home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/diff_bot_3 build --build-base /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build install --record /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/install.log --single-version-externally-managed install_data

@@ -1,0 +1,26 @@
+[1.183s] Invoking command in '/home/robotica/Robotica-Taller-1-Final/ros2_ws/src/turtle_bot_3': PYTHONPATH=/home/robotica/Robotica-Taller-1-Final/ros2_ws/build/turtle_bot_3/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/robotica/Robotica-Taller-1-Final/ros2_ws/install/turtle_bot_3/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/turtle_bot_3 build --build-base /home/robotica/Robotica-Taller-1-Final/ros2_ws/build/turtle_bot_3/build install --record /home/robotica/Robotica-Taller-1-Final/ros2_ws/build/turtle_bot_3/install.log --single-version-externally-managed install_data
+[1.567s] running egg_info
+[1.580s] writing ../../build/turtle_bot_3/turtle_bot_3.egg-info/PKG-INFO
+[1.581s] writing dependency_links to ../../build/turtle_bot_3/turtle_bot_3.egg-info/dependency_links.txt
+[1.584s] writing entry points to ../../build/turtle_bot_3/turtle_bot_3.egg-info/entry_points.txt
+[1.584s] writing requirements to ../../build/turtle_bot_3/turtle_bot_3.egg-info/requires.txt
+[1.586s] writing top-level names to ../../build/turtle_bot_3/turtle_bot_3.egg-info/top_level.txt
+[1.594s] reading manifest file '../../build/turtle_bot_3/turtle_bot_3.egg-info/SOURCES.txt'
+[1.594s] writing manifest file '../../build/turtle_bot_3/turtle_bot_3.egg-info/SOURCES.txt'
+[1.595s] running build
+[1.595s] running build_py
+[1.596s] copying turtle_bot_3/turtle_bot_interface.py -> /home/robotica/Robotica-Taller-1-Final/ros2_ws/build/turtle_bot_3/build/lib/turtle_bot_3
+[1.598s] running install
+[1.600s] running install_lib
+[1.600s] copying /home/robotica/Robotica-Taller-1-Final/ros2_ws/build/turtle_bot_3/build/lib/turtle_bot_3/turtle_bot_interface.py -> /home/robotica/Robotica-Taller-1-Final/ros2_ws/install/turtle_bot_3/lib/python3.10/site-packages/turtle_bot_3
+[1.605s] byte-compiling /home/robotica/Robotica-Taller-1-Final/ros2_ws/install/turtle_bot_3/lib/python3.10/site-packages/turtle_bot_3/turtle_bot_interface.py to turtle_bot_interface.cpython-310.pyc
+[1.606s] running install_data
+[1.606s] running install_egg_info
+[1.612s] removing '/home/robotica/Robotica-Taller-1-Final/ros2_ws/install/turtle_bot_3/lib/python3.10/site-packages/turtle_bot_3-0.0.0-py3.10.egg-info' (and everything under it)
+[1.612s] Copying ../../build/turtle_bot_3/turtle_bot_3.egg-info to /home/robotica/Robotica-Taller-1-Final/ros2_ws/install/turtle_bot_3/lib/python3.10/site-packages/turtle_bot_3-0.0.0-py3.10.egg-info
+[1.612s] running install_scripts
+[1.686s] Installing turtle_bot_interface script to /home/robotica/Robotica-Taller-1-Final/ros2_ws/install/turtle_bot_3/lib/turtle_bot_3
+[1.687s] Installing turtle_bot_player script to /home/robotica/Robotica-Taller-1-Final/ros2_ws/install/turtle_bot_3/lib/turtle_bot_3
+[1.687s] Installing turtle_bot_teleop script to /home/robotica/Robotica-Taller-1-Final/ros2_ws/install/turtle_bot_3/lib/turtle_bot_3
+[1.691s] writing list of installed files to '/home/robotica/Robotica-Taller-1-Final/ros2_ws/build/turtle_bot_3/install.log'
+[1.760s] Invoked command in '/home/robotica/Robotica-Taller-1-Final/ros2_ws/src/turtle_bot_3' returned '0': PYTHONPATH=/home/robotica/Robotica-Taller-1-Final/ros2_ws/build/turtle_bot_3/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/robotica/Robotica-Taller-1-Final/ros2_ws/install/turtle_bot_3/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/turtle_bot_3 build --build-base /home/robotica/Robotica-Taller-1-Final/ros2_ws/build/turtle_bot_3/build install --record /home/robotica/Robotica-Taller-1-Final/ros2_ws/build/turtle_bot_3/install.log --single-version-externally-managed install_data

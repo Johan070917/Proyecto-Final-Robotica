@@ -1,0 +1,53 @@
+running egg_info
+creating ../../build/diff_bot_3/diff_bot_3.egg-info
+writing ../../build/diff_bot_3/diff_bot_3.egg-info/PKG-INFO
+writing dependency_links to ../../build/diff_bot_3/diff_bot_3.egg-info/dependency_links.txt
+writing entry points to ../../build/diff_bot_3/diff_bot_3.egg-info/entry_points.txt
+writing requirements to ../../build/diff_bot_3/diff_bot_3.egg-info/requires.txt
+writing top-level names to ../../build/diff_bot_3/diff_bot_3.egg-info/top_level.txt
+writing manifest file '../../build/diff_bot_3/diff_bot_3.egg-info/SOURCES.txt'
+reading manifest file '../../build/diff_bot_3/diff_bot_3.egg-info/SOURCES.txt'
+writing manifest file '../../build/diff_bot_3/diff_bot_3.egg-info/SOURCES.txt'
+running build
+running build_py
+creating /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/diff_bot_3
+copying diff_bot_3/diferencial_player.py -> /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/diff_bot_3
+copying diff_bot_3/diferencial_odometria.py -> /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/diff_bot_3
+copying diff_bot_3/robot_interface.py -> /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/diff_bot_3
+copying diff_bot_3/__init__.py -> /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/diff_bot_3
+copying diff_bot_3/robot_player.py -> /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/diff_bot_3
+copying diff_bot_3/diferencial_teleop.py -> /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/diff_bot_3
+copying diff_bot_3/robot_teleop.py -> /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/diff_bot_3
+copying diff_bot_3/robot_core.py -> /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/diff_bot_3
+copying diff_bot_3/diferencial_interface.py -> /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/diff_bot_3
+running install
+running install_lib
+creating /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/turtle_bot_3
+copying /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/turtle_bot_3/turtle_bot_player.py -> /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/turtle_bot_3
+copying /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/turtle_bot_3/__init__.py -> /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/turtle_bot_3
+copying /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/turtle_bot_3/turtle_bot_interface.py -> /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/turtle_bot_3
+copying /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/turtle_bot_3/turtle_bot_teleop.py -> /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/turtle_bot_3
+creating /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/diff_bot_3
+copying /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/diff_bot_3/diferencial_player.py -> /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/diff_bot_3
+copying /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/diff_bot_3/diferencial_odometria.py -> /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/diff_bot_3
+copying /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/diff_bot_3/robot_interface.py -> /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/diff_bot_3
+copying /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/diff_bot_3/__init__.py -> /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/diff_bot_3
+copying /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/diff_bot_3/robot_player.py -> /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/diff_bot_3
+copying /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/diff_bot_3/diferencial_teleop.py -> /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/diff_bot_3
+copying /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/diff_bot_3/robot_teleop.py -> /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/diff_bot_3
+copying /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/diff_bot_3/robot_core.py -> /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/diff_bot_3
+copying /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/diff_bot_3/diferencial_interface.py -> /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/diff_bot_3
+byte-compiling /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/turtle_bot_3/turtle_bot_player.py to turtle_bot_player.cpython-312.pyc
+byte-compiling /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/turtle_bot_3/__init__.py to __init__.cpython-312.pyc
+byte-compiling /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/turtle_bot_3/turtle_bot_interface.py to turtle_bot_interface.cpython-312.pyc
+byte-compiling /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/turtle_bot_3/turtle_bot_teleop.py to turtle_bot_teleop.cpython-312.pyc
+byte-compiling /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/diff_bot_3/diferencial_player.py to diferencial_player.cpython-312.pyc
+byte-compiling /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/diff_bot_3/diferencial_odometria.py to diferencial_odometria.cpython-312.pyc
+byte-compiling /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/diff_bot_3/robot_interface.py to robot_interface.cpython-312.pyc
+byte-compiling /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/diff_bot_3/__init__.py to __init__.cpython-312.pyc
+byte-compiling /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/diff_bot_3/robot_player.py to robot_player.cpython-312.pyc
+byte-compiling /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/diff_bot_3/diferencial_teleop.py to diferencial_teleop.cpython-312.pyc
+byte-compiling /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/diff_bot_3/robot_teleop.py to robot_teleop.cpython-312.pyc
+byte-compiling /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/diff_bot_3/robot_core.py to robot_core.cpython-312.pyc
+byte-compiling /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/diff_bot_3/diferencial_interface.py to diferencial_interface.cpython-312.pyc
+running install_data

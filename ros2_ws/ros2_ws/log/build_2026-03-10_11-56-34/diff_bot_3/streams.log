@@ -1,0 +1,56 @@
+[2.058s] Invoking command in '/home/johan/Taller-2-Robotica/ros2_ws/src/diff_bot_3': DEBUGINFOD_URLS=https://debuginfod.ubuntu.com PYTHONPATH=/home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/diff_bot_3 build --build-base /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build install --record /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/install.log --single-version-externally-managed install_data
+[2.489s] running egg_info
+[2.489s] creating ../../build/diff_bot_3/diff_bot_3.egg-info
+[2.528s] writing ../../build/diff_bot_3/diff_bot_3.egg-info/PKG-INFO
+[2.529s] writing dependency_links to ../../build/diff_bot_3/diff_bot_3.egg-info/dependency_links.txt
+[2.529s] writing entry points to ../../build/diff_bot_3/diff_bot_3.egg-info/entry_points.txt
+[2.531s] writing requirements to ../../build/diff_bot_3/diff_bot_3.egg-info/requires.txt
+[2.531s] writing top-level names to ../../build/diff_bot_3/diff_bot_3.egg-info/top_level.txt
+[2.531s] writing manifest file '../../build/diff_bot_3/diff_bot_3.egg-info/SOURCES.txt'
+[2.604s] reading manifest file '../../build/diff_bot_3/diff_bot_3.egg-info/SOURCES.txt'
+[2.605s] writing manifest file '../../build/diff_bot_3/diff_bot_3.egg-info/SOURCES.txt'
+[2.605s] running build
+[2.605s] running build_py
+[2.606s] creating /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/diff_bot_3
+[2.606s] copying diff_bot_3/diferencial_player.py -> /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/diff_bot_3
+[2.614s] copying diff_bot_3/diferencial_odometria.py -> /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/diff_bot_3
+[2.614s] copying diff_bot_3/robot_interface.py -> /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/diff_bot_3
+[2.617s] copying diff_bot_3/__init__.py -> /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/diff_bot_3
+[2.621s] copying diff_bot_3/robot_player.py -> /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/diff_bot_3
+[2.622s] copying diff_bot_3/diferencial_teleop.py -> /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/diff_bot_3
+[2.623s] copying diff_bot_3/robot_teleop.py -> /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/diff_bot_3
+[2.624s] copying diff_bot_3/robot_core.py -> /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/diff_bot_3
+[2.626s] copying diff_bot_3/diferencial_interface.py -> /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/diff_bot_3
+[2.633s] running install
+[2.656s] running install_lib
+[2.684s] creating /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/turtle_bot_3
+[2.684s] copying /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/turtle_bot_3/turtle_bot_player.py -> /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/turtle_bot_3
+[2.684s] copying /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/turtle_bot_3/__init__.py -> /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/turtle_bot_3
+[2.684s] copying /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/turtle_bot_3/turtle_bot_interface.py -> /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/turtle_bot_3
+[2.685s] copying /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/turtle_bot_3/turtle_bot_teleop.py -> /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/turtle_bot_3
+[2.685s] creating /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/diff_bot_3
+[2.685s] copying /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/diff_bot_3/diferencial_player.py -> /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/diff_bot_3
+[2.685s] copying /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/diff_bot_3/diferencial_odometria.py -> /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/diff_bot_3
+[2.686s] copying /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/diff_bot_3/robot_interface.py -> /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/diff_bot_3
+[2.686s] copying /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/diff_bot_3/__init__.py -> /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/diff_bot_3
+[2.686s] copying /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/diff_bot_3/robot_player.py -> /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/diff_bot_3
+[2.686s] copying /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/diff_bot_3/diferencial_teleop.py -> /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/diff_bot_3
+[2.686s] copying /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/diff_bot_3/robot_teleop.py -> /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/diff_bot_3
+[2.686s] copying /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/diff_bot_3/robot_core.py -> /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/diff_bot_3
+[2.686s] copying /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build/lib/diff_bot_3/diferencial_interface.py -> /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/diff_bot_3
+[2.687s] byte-compiling /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/turtle_bot_3/turtle_bot_player.py to turtle_bot_player.cpython-312.pyc
+[2.689s] byte-compiling /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/turtle_bot_3/__init__.py to __init__.cpython-312.pyc
+[2.689s] byte-compiling /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/turtle_bot_3/turtle_bot_interface.py to turtle_bot_interface.cpython-312.pyc
+[2.690s] byte-compiling /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/turtle_bot_3/turtle_bot_teleop.py to turtle_bot_teleop.cpython-312.pyc
+[2.691s] byte-compiling /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/diff_bot_3/diferencial_player.py to diferencial_player.cpython-312.pyc
+[2.692s] byte-compiling /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/diff_bot_3/diferencial_odometria.py to diferencial_odometria.cpython-312.pyc
+[2.693s] byte-compiling /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/diff_bot_3/robot_interface.py to robot_interface.cpython-312.pyc
+[2.694s] byte-compiling /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/diff_bot_3/__init__.py to __init__.cpython-312.pyc
+[2.694s] byte-compiling /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/diff_bot_3/robot_player.py to robot_player.cpython-312.pyc
+[2.695s] byte-compiling /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/diff_bot_3/diferencial_teleop.py to diferencial_teleop.cpython-312.pyc
+[2.696s] byte-compiling /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/diff_bot_3/robot_teleop.py to robot_teleop.cpython-312.pyc
+[2.697s] byte-compiling /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/diff_bot_3/robot_core.py to robot_core.cpython-312.pyc
+[2.698s] byte-compiling /home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages/diff_bot_3/diferencial_interface.py to diferencial_interface.cpython-312.pyc
+[2.699s] running install_data
+[2.699s] error: can't copy 'resource/diff_bot_3': doesn't exist or not a regular file
+[2.768s] Invoked command in '/home/johan/Taller-2-Robotica/ros2_ws/src/diff_bot_3' returned '1': DEBUGINFOD_URLS=https://debuginfod.ubuntu.com PYTHONPATH=/home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/johan/Taller-2-Robotica/ros2_ws/install/diff_bot_3/lib/python3.12/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/diff_bot_3 build --build-base /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/build install --record /home/johan/Taller-2-Robotica/ros2_ws/build/diff_bot_3/install.log --single-version-externally-managed install_data
