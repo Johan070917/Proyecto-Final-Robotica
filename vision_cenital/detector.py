@@ -31,6 +31,7 @@ Teclas dentro de la ventana:
 import argparse
 import json
 import os
+import threading
 import time
 
 # Desactiva las "HW transforms" de MSMF antes de importar cv2. Sin esto,
@@ -93,6 +94,41 @@ class Undistorter:
         return cv2.remap(frame, self.map1, self.map2, cv2.INTER_LINEAR)
 
 
+class LatestFrameReader:
+    """Lee la camara en un hilo separado y expone siempre el frame mas reciente.
+
+    Sin esto, cap.read() bloquea el hilo de procesamiento esperando el proximo
+    frame USB. Si el procesamiento tarda mas que 1/fps, se acumula un retraso
+    visible. Con este lector, el hilo de procesamiento siempre coge el frame
+    mas reciente disponible sin esperar.
+    """
+
+    def __init__(self, cap):
+        self._cap = cap
+        self._frame = None
+        self._lock = threading.Lock()
+        self._running = True
+        self._t = threading.Thread(target=self._loop, daemon=True)
+        self._t.start()
+
+    def _loop(self):
+        while self._running:
+            ok, frame = self._cap.read()
+            if ok and frame is not None:
+                with self._lock:
+                    self._frame = frame
+
+    def read(self):
+        with self._lock:
+            if self._frame is None:
+                return False, None
+            return True, self._frame.copy()
+
+    def stop(self):
+        self._running = False
+        self._t.join(timeout=2.0)
+
+
 # -----------------------------------------------------------------------------
 # Rangos HSV iniciales (calibrar con --tune)
 # -----------------------------------------------------------------------------
@@ -100,7 +136,7 @@ HSV_RANGES = {
     'RED':   [((0,   110,  80), (10,  255, 255)),
               ((170, 110,  80), (180, 255, 255))],
     'GREEN': [((34,   26,  40), (86,  255, 255))],
-    'BLUE':  [((95,  110,  60), (130, 255, 255))],
+    'BLUE':  [((90,   37,  40), (130, 255, 255))],
 }
 
 # Negro para obstaculos: cualquier H, S baja-media, V baja.
@@ -265,12 +301,44 @@ def annotate(frame, color_dets, obstacles):
     return frame
 
 
+def _bbox_overlap_ratio(a, b):
+    """Devuelve el ratio de interseccion respecto al area MENOR de los dos
+    bboxes. 1.0 = uno contenido completamente en el otro; 0.0 = no se tocan.
+    """
+    ax, ay, aw, ah = a
+    bx, by, bw, bh = b
+    ix = max(ax, bx)
+    iy = max(ay, by)
+    ex = min(ax + aw, bx + bw)
+    ey = min(ay + ah, by + bh)
+    if ex <= ix or ey <= iy:
+        return 0.0
+    inter = (ex - ix) * (ey - iy)
+    return inter / max(1.0, min(aw * ah, bw * bh))
+
+
+# Si un obstaculo solapa mas que este ratio con un objeto de color, es un
+# falso positivo (sombra sobre un cubo, etc.) y se descarta.
+OBST_OVERLAP_THRESHOLD = 0.3
+
+
 def process_frame(frame):
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
     color_dets = {
         c: detect_color_objects(hsv, c, r) for c, r in HSV_RANGES.items()
     }
     obstacles = detect_obstacles(hsv)
+
+    # Descartar obstaculos que solapan significativamente con un cubo o zona.
+    # Las sombras / reflejos oscuros sobre los cubos disparan el detector de
+    # negro y aparecen como falsos OBST.
+    color_bboxes = [d['bbox']
+                    for dets in color_dets.values() for d in dets]
+    obstacles = [
+        o for o in obstacles
+        if not any(_bbox_overlap_ratio(o['bbox'], cb) > OBST_OVERLAP_THRESHOLD
+                   for cb in color_bboxes)
+    ]
     return color_dets, obstacles
 
 
@@ -339,9 +407,9 @@ def _fourcc_to_str(fcc_int):
 
 
 def find_camera_index_by_name(name_substring):
-    """Busca el indice de una camara cuyo nombre contenga la subcadena dada.
+    """Busca el indice DSHOW de una camara cuyo nombre contenga la subcadena.
 
-    Usa DirectShow via pygrabber. Devuelve -1 si no encuentra coincidencia.
+    Usa pygrabber (DirectShow). Devuelve -1 si no encuentra coincidencia.
     """
     if not HAS_PYGRABBER:
         return -1
@@ -353,11 +421,63 @@ def find_camera_index_by_name(name_substring):
     for i, n in enumerate(names):
         if needle in n.lower():
             print(f"[camera_by_name] '{name_substring}' encontrada como "
-                  f"'{n}' en indice {i}")
+                  f"'{n}' en indice DSHOW {i}")
             return i
     print(f"[camera_by_name] No encontre camara con '{name_substring}'. "
           f"Camaras detectadas: {names}")
     return -1
+
+
+def find_msmf_index_for_named_camera(dshow_idx, want_w, want_h, max_probe=4,
+                                     prefer_other=False):
+    """Busca el indice MSMF que corresponde a la camara hallada en DSHOW.
+
+    Estrategia: probar cada indice MSMF pidiendo (want_w, want_h) MJPG.
+    Por defecto prefiere el indice MSMF que coincide con dshow_idx (MSMF y
+    DSHOW suelen enumerar en el mismo orden). Si prefer_other=True, prefiere
+    el indice que NO coincide -- util cuando MSMF y DSHOW van invertidos.
+    """
+    preferred = dshow_idx
+    if prefer_other:
+        # Preferir el primer indice valido distinto de dshow_idx
+        others = [i for i in range(max_probe) if i != dshow_idx]
+        preferred = others[0] if others else dshow_idx
+
+    print(f"[msmf_probe] Buscando indice MSMF que acepte "
+          f"{want_w}x{want_h} (preferencia: MSMF[{preferred}])...")
+    fallback = -1
+    order = [preferred] + [i for i in range(max_probe) if i != preferred]
+    for i in order:
+        if i < 0:
+            continue
+        try:
+            cap = cv2.VideoCapture(i, cv2.CAP_MSMF)
+            if not cap.isOpened():
+                continue
+            cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))
+            cap.set(cv2.CAP_PROP_FRAME_WIDTH, want_w)
+            cap.set(cv2.CAP_PROP_FRAME_HEIGHT, want_h)
+            actual_w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+            actual_h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+            ok, _ = cap.read()
+            cap.release()
+            accepts = ok and actual_w >= want_w and actual_h >= want_h
+            tag = "OK" if accepts else "no"
+            match_str = " (match DSHOW)" if i == dshow_idx else ""
+            print(f"  indice MSMF {i}: acepto {actual_w}x{actual_h}  "
+                  f"frame_ok={ok}  -> {tag}{match_str}")
+            if accepts:
+                if i == preferred:
+                    return i
+                if fallback < 0:
+                    fallback = i
+        except Exception as exc:
+            print(f"  indice MSMF {i}: error {exc}")
+    if fallback >= 0:
+        print(f"[msmf_probe] -> elegido indice MSMF {fallback} (fallback)")
+    else:
+        print("[msmf_probe] Ningun indice MSMF acepto la resolucion.")
+    return fallback
 
 
 def open_camera(index, width, height, backend='msmf', fourcc='MJPG', fps=30,
@@ -469,14 +589,19 @@ def list_cameras():
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--camera', type=int, default=0,
-                        help='Indice de la camara (0,1,2...). Default 0. '
-                             'Ignorado si --camera-name encuentra la camara.')
+    parser.add_argument('--camera', type=int, default=None,
+                        help='Indice de la camara (0,1,2...). Si lo pasas '
+                             'explicitamente, sobrescribe la auto-deteccion '
+                             'por nombre. Default: auto-detectar.')
     parser.add_argument('--camera-name', type=str, default='C920',
                         help='Buscar la camara por subcadena del nombre '
                              '(default "C920"). Mas robusto que --camera '
                              'porque el indice cambia entre reconexiones. '
-                             'Si no encuentra, cae a --camera.')
+                             'Ignorado si pasas --camera explicito.')
+    parser.add_argument('--prefer-other-msmf', action='store_true',
+                        help='Invierte la heuristica MSMF: prefiere el indice '
+                             'que NO coincide con DSHOW. Util si la '
+                             'auto-deteccion abre la camara equivocada.')
     parser.add_argument('--width', type=int, default=1280)
     parser.add_argument('--height', type=int, default=720)
     parser.add_argument('--image', type=str, default=None,
@@ -502,11 +627,37 @@ def main():
 
     undistort = Undistorter()
 
-    # Resolver indice de camara: primero por nombre, si falla usa --camera
-    if args.camera_name:
-        found = find_camera_index_by_name(args.camera_name)
-        if found >= 0:
-            args.camera = found
+    # Resolver indice de camara. Prioridad:
+    #  1. Si el usuario paso --camera N explicito -> usar tal cual.
+    #  2. Si --camera-name -> auto-detectar via pygrabber + sondeo MSMF.
+    #  3. Si nada -> usar indice 0.
+    if args.camera is not None:
+        # Override explicito del usuario, saltamos auto-deteccion.
+        print(f"[camera] --camera={args.camera} explicito, backend="
+              f"{args.backend} (saltando auto-deteccion)")
+    elif args.camera_name:
+        dshow_idx = find_camera_index_by_name(args.camera_name)
+        if dshow_idx >= 0:
+            msmf_idx = find_msmf_index_for_named_camera(
+                dshow_idx, args.width, args.height,
+                prefer_other=args.prefer_other_msmf)
+            if msmf_idx >= 0:
+                args.camera = msmf_idx
+                args.backend = 'msmf'
+            else:
+                args.camera = dshow_idx
+                args.backend = 'dshow'
+                print("[camera_by_name] Fallback: usando DSHOW (puede bajar "
+                      "silenciosamente a 480p).")
+        else:
+            args.camera = 0
+    else:
+        args.camera = 0
+
+    print(f"\n** Camara final: index={args.camera}  backend={args.backend} **")
+    print(f"   Si abre la camara equivocada, sobrescribe con:")
+    print(f"     --camera N --backend msmf   (forzar indice MSMF)")
+    print(f"     --prefer-other-msmf          (invertir auto-deteccion)\n")
 
     # Modo imagen fija
     if args.image:
@@ -536,21 +687,37 @@ def main():
     # Modo live
     cap = open_camera(args.camera, args.width, args.height, args.backend,
                       manual_exposure=not args.auto_camera)
+    reader = LatestFrameReader(cap)
     print("Detector cenital corriendo. q=salir, s=snapshot, h=toggle overlay")
     show_overlay = True
     last_log = 0.0
+    fps_count = 0
+    fps_display = 0.0
+    fps_t0 = time.perf_counter()
     try:
         while True:
-            ok, frame = cap.read()
+            ok, frame = reader.read()
             if not ok:
+                time.sleep(0.005)
                 continue
             frame = undistort(frame)
             color_dets, obstacles = process_frame(frame)
 
+            fps_count += 1
+            now_perf = time.perf_counter()
+            elapsed = now_perf - fps_t0
+            if elapsed >= 1.0:
+                fps_display = fps_count / elapsed
+                fps_count = 0
+                fps_t0 = now_perf
+
             if show_overlay:
                 out = annotate(frame.copy(), color_dets, obstacles)
             else:
-                out = frame
+                out = frame.copy()
+            cv2.putText(out, f"FPS: {fps_display:.1f}", (10, 28),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 255), 2,
+                        cv2.LINE_AA)
             cv2.imshow('Detector cenital', out)
 
             now = time.time()
@@ -568,6 +735,7 @@ def main():
                 cv2.imwrite(fn, frame)
                 print(f"Guardado {fn}")
     finally:
+        reader.stop()
         cap.release()
         cv2.destroyAllWindows()
 
