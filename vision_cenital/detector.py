@@ -154,20 +154,27 @@ MIN_AREA_COLOR = 400       # area minima del blob de color (px)
 MIN_AREA_OBST  = 300       # area minima de obstaculo
 ASPECT_TOL     = (0.45, 2.20)  # tolerancia para cubos / zonas
 
-# Umbral de fill-ratio (raw_mask_count / bbox_area) para clasificar cubo vs zona
-FILL_CUBE_MIN  = 0.65      # > este = cubo
-FILL_ZONE_MAX  = 0.55      # < este = zona
-# Entre 0.55 y 0.65 = UNKNOWN
+# Clasificacion CUBE / ZONE:
+#   - El fill-ratio (mask_count / bbox_area) falla cuando el cubo tiene
+#     brillos/sombras que rompen la mascara HSV (un cubo puede dar fill 0.45
+#     y confundirse con una zona).
+#   - Mejor test: erosionar la mascara. Un cubo solido sobrevive (queda un
+#     "nucleo" central). Una zona con X de cinta delgada se borra entera.
+FILL_ZONE_MAX       = 0.55     # fill maximo para ser ZONE
+CORE_FILL_CUBE_MIN  = 0.05     # >= 5% del bbox sobrevive a la erosion -> CUBE
+ERODE_KERNEL_REL    = 0.20     # erosion del 20% del lado del bbox
 
-# Kernel para "rellenar" la zona con X. Debe escalar con el tamano del blob,
-# asi que lo aplicamos relativo y no absoluto (ver detect_color_objects).
-CLOSE_KERNEL_REL = 0.30    # 30% del lado del bbox aprox
-
-# Filtros para descartar la cinta-linea del puente (largo y muy delgado).
-# Subimos el limite para que paredes (rectangulos largos pero gruesos) si
-# pasen el filtro. La cinta del puente tiene aspect > 20.
-OBST_ASPECT_MAX = 12.0
-OBST_EXTENT_MIN = 0.35
+# Filtros de obstaculos / paredes (mismo mask negro).
+MIN_AREA_WALL      = 800   # area minima para considerarlo pared
+TAPE_MIN_DIM       = 6     # min dim < esto = ultra delgado, descartar siempre
+# Cinta-linea del puente (line follower): alargada Y delgada. Las paredes
+# reales son notablemente mas gruesas, asi que filtramos cualquier tira
+# alargada cuyo grosor sea menor que TAPE_MAX_THICK.
+TAPE_ASPECT_THIN   = 3.0   # aspect > este
+TAPE_MAX_THICK     = 20    # AND min_dim < este -> es cinta, descartar
+OBST_ASPECT_MAX    = 2.5   # un obstaculo (cubo negro) tiene aspect ~1; 2.5 tolera sombras
+OBST_EXTENT_MIN    = 0.35  # extent (area/bbox) minimo para obstaculo compacto
+MAX_OBST_AREA      = 20000 # area maxima para obstaculo -- mas grande = pared
 
 
 # -----------------------------------------------------------------------------
@@ -222,9 +229,17 @@ def detect_color_objects(hsv, color_name, ranges):
         # Fill ratio en la MASCARA CRUDA (sin cerrar) dentro del bbox.
         # Cubo lleno -> ~1.0   |   Zona con X -> ~0.3-0.5
         roi = raw[y:y + h, x:x + w]
-        fill = cv2.countNonZero(roi) / float(w * h)
+        bbox_area = float(w * h)
+        fill = cv2.countNonZero(roi) / bbox_area
 
-        if fill >= FILL_CUBE_MIN:
+        # Test de erosion: si erosionamos la mascara cruda en el bbox y queda
+        # un "nucleo", es porque hay una region solida (cubo). Si no queda
+        # nada, eran lineas delgadas (zona con X de cinta).
+        erode_k = max(3, int(min(w, h) * ERODE_KERNEL_REL))
+        roi_eroded = cv2.erode(roi, np.ones((erode_k, erode_k), np.uint8))
+        core_fill = cv2.countNonZero(roi_eroded) / bbox_area
+
+        if core_fill >= CORE_FILL_CUBE_MIN:
             kind = 'CUBE'
         elif fill <= FILL_ZONE_MAX:
             kind = 'ZONE'
@@ -245,17 +260,38 @@ def detect_color_objects(hsv, color_name, ranges):
     return out
 
 
-def detect_obstacles(hsv):
-    """Detecta blobs negros. Filtra cinta-linea (larga y delgada)."""
-    lo, hi = HSV_BLACK
-    mask = cv2.inRange(hsv, np.array(lo, dtype=np.uint8),
-                       np.array(hi, dtype=np.uint8))
-    mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, np.ones((5, 5), np.uint8))
-    mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, np.ones((7, 7), np.uint8))
+def detect_black_structures(hsv):
+    """Detecta todo lo negro y lo clasifica en obstaculos discretos vs paredes.
 
-    cnts, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL,
+    Un mismo blob negro puede ser:
+      - Cinta-linea del puente (muy delgada en algun eje) -> DESCARTADO
+      - Obstaculo compacto tipo cubo (aspect ~1, area moderada) -> obstacle
+      - Pared (alargada o muy grande) -> wall
+
+    Devuelve (obstacles, walls, wall_mask). wall_mask sirve luego para
+    construir el grid de ocupacion para A*/BFS/DFS.
+    """
+    lo, hi = HSV_BLACK
+    raw_mask = cv2.inRange(hsv, np.array(lo, dtype=np.uint8),
+                           np.array(hi, dtype=np.uint8))
+    # OPEN fuerte: elimina componentes pequenos antes del CLOSE. Esto borra
+    # los huecos individuales de la rejilla metalica (4-8 px cada uno) para
+    # que el CLOSE posterior NO los una al contorno de la pared cercana.
+    # Las paredes reales (>= 20 px de grosor) no se ven afectadas: OPEN no
+    # encoge componentes grandes, solo elimina los que caben dentro del kernel.
+    raw_mask = cv2.morphologyEx(raw_mask, cv2.MORPH_OPEN,
+                                np.ones((7, 7), np.uint8))
+    # Cerrar para unir paredes con pequenos huecos.
+    # Kernel 5x5 (no 7x7): la cinta-linea del puente queda a ~13 px de grosor
+    # en vez de ~15 px, dando mas margen al filtro TAPE_MAX_THICK.
+    clean = cv2.morphologyEx(raw_mask, cv2.MORPH_CLOSE,
+                             np.ones((5, 5), np.uint8))
+
+    cnts, _ = cv2.findContours(clean, cv2.RETR_EXTERNAL,
                                cv2.CHAIN_APPROX_SIMPLE)
-    out = []
+    obstacles, walls = [], []
+    wall_mask = np.zeros_like(clean)
+
     for c in cnts:
         area = cv2.contourArea(c)
         if area < MIN_AREA_OBST:
@@ -263,22 +299,51 @@ def detect_obstacles(hsv):
         x, y, w, h = cv2.boundingRect(c)
         if w == 0 or h == 0:
             continue
-        aspect = max(w / h, h / w)
-        if aspect > OBST_ASPECT_MAX:
-            continue           # cinta-linea
+        min_dim = min(w, h)
+        aspect = max(w, h) / float(min_dim)
         extent = area / float(w * h)
-        if extent < OBST_EXTENT_MIN:
-            continue           # forma muy irregular
-        out.append({
-            'bbox': (x, y, w, h),
-            'center': (x + w // 2, y + h // 2),
-            'area': area,
-        })
-    return out
+
+        # Cinta-linea del puente: descartar.
+        #  (a) ultra delgada en algun eje
+        #  (b) alargada Y mas fina que TAPE_MAX_THICK
+        if min_dim < TAPE_MIN_DIM:
+            continue
+        if aspect > TAPE_ASPECT_THIN and min_dim < TAPE_MAX_THICK:
+            continue
+
+        # Obstaculo compacto: aspect cercano a 1, extent alto, area moderada.
+        is_compact = (aspect <= OBST_ASPECT_MAX
+                      and extent >= OBST_EXTENT_MIN
+                      and area <= MAX_OBST_AREA)
+        if is_compact:
+            obstacles.append({
+                'bbox': (x, y, w, h),
+                'center': (x + w // 2, y + h // 2),
+                'area': area,
+            })
+        elif area >= MIN_AREA_WALL or aspect > OBST_ASPECT_MAX:
+            walls.append({
+                'bbox': (x, y, w, h),
+                'area': area,
+                'contour': c,
+            })
+            cv2.drawContours(wall_mask, [c], -1, 255, thickness=cv2.FILLED)
+
+    return obstacles, walls, wall_mask
 
 
 # -----------------------------------------------------------------------------
-def annotate(frame, color_dets, obstacles):
+def annotate(frame, color_dets, obstacles, walls=None):
+    # Dibujar paredes primero (debajo del resto)
+    if walls:
+        for wl in walls:
+            cv2.drawContours(frame, [wl['contour']], -1, (200, 100, 200), 2)
+        # Etiqueta solo a la pared mas grande para no llenar de texto
+        biggest = max(walls, key=lambda w: w['area'])
+        x, y, w, h = biggest['bbox']
+        cv2.putText(frame, f"WALL x{len(walls)}", (x, max(0, y - 6)),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (200, 100, 200), 2)
+
     for color, dets in color_dets.items():
         bgr = DRAW_BGR[color]
         for d in dets:
@@ -327,7 +392,7 @@ def process_frame(frame):
     color_dets = {
         c: detect_color_objects(hsv, c, r) for c, r in HSV_RANGES.items()
     }
-    obstacles = detect_obstacles(hsv)
+    obstacles, walls, wall_mask = detect_black_structures(hsv)
 
     # Descartar obstaculos que solapan significativamente con un cubo o zona.
     # Las sombras / reflejos oscuros sobre los cubos disparan el detector de
@@ -339,7 +404,7 @@ def process_frame(frame):
         if not any(_bbox_overlap_ratio(o['bbox'], cb) > OBST_OVERLAP_THRESHOLD
                    for cb in color_bboxes)
     ]
-    return color_dets, obstacles
+    return color_dets, obstacles, walls, wall_mask
 
 
 # -----------------------------------------------------------------------------
@@ -665,9 +730,9 @@ def main():
         if frame is None:
             raise SystemExit(f"No pude leer {args.image}")
         frame = undistort(frame)
-        color_dets, obstacles = process_frame(frame)
-        _print_summary(color_dets, obstacles)
-        out = annotate(frame.copy(), color_dets, obstacles)
+        color_dets, obstacles, walls, _ = process_frame(frame)
+        _print_summary(color_dets, obstacles, walls)
+        out = annotate(frame.copy(), color_dets, obstacles, walls)
         cv2.imshow('Detector (imagen)', out)
         print("Pulsa cualquier tecla para cerrar.")
         cv2.waitKey(0)
@@ -701,7 +766,7 @@ def main():
                 time.sleep(0.005)
                 continue
             frame = undistort(frame)
-            color_dets, obstacles = process_frame(frame)
+            color_dets, obstacles, walls, _ = process_frame(frame)
 
             fps_count += 1
             now_perf = time.perf_counter()
@@ -712,7 +777,7 @@ def main():
                 fps_t0 = now_perf
 
             if show_overlay:
-                out = annotate(frame.copy(), color_dets, obstacles)
+                out = annotate(frame.copy(), color_dets, obstacles, walls)
             else:
                 out = frame.copy()
             cv2.putText(out, f"FPS: {fps_display:.1f}", (10, 28),
@@ -722,7 +787,7 @@ def main():
 
             now = time.time()
             if now - last_log > 1.0:
-                _print_summary(color_dets, obstacles, compact=True)
+                _print_summary(color_dets, obstacles, walls, compact=True)
                 last_log = now
 
             k = cv2.waitKey(1) & 0xFF
@@ -740,23 +805,26 @@ def main():
         cv2.destroyAllWindows()
 
 
-def _print_summary(color_dets, obstacles, compact=False):
+def _print_summary(color_dets, obstacles, walls=None, compact=False):
     counts = {c: {'CUBE': 0, 'ZONE': 0, 'UNKNOWN': 0}
               for c in color_dets}
     for c, dets in color_dets.items():
         for d in dets:
             counts[c][d['kind']] += 1
+    n_walls = len(walls) if walls else 0
     if compact:
         parts = []
         for c, k in counts.items():
             parts.append(f"{c}:C{k['CUBE']}/Z{k['ZONE']}")
         parts.append(f"OBST:{len(obstacles)}")
+        parts.append(f"WALL:{n_walls}")
         print(" | ".join(parts))
     else:
         for c, k in counts.items():
             print(f"  {c}: cubos={k['CUBE']}  zonas={k['ZONE']}  "
                   f"unknown={k['UNKNOWN']}")
         print(f"  obstaculos: {len(obstacles)}")
+        print(f"  paredes:    {n_walls}")
 
 
 if __name__ == '__main__':
