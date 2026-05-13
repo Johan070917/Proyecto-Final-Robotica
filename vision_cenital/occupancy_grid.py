@@ -110,6 +110,15 @@ class OccupancyGrid:
         # se marca como WALL (mismo efecto para A* pero mejor visualizacion).
         grid[small_walls > 30] = WALL
 
+        # Borde virtual del campo: las paredes externas de la pista quedan
+        # FUERA del rectangulo navegable (la homografia se calibro con las
+        # esquinas internas). Para que la inflacion del robot mantenga
+        # distancia del perimetro, marcamos la celda exterior como WALL.
+        grid[0, :] = WALL
+        grid[-1, :] = WALL
+        grid[:, 0] = WALL
+        grid[:, -1] = WALL
+
         # 4) Inflar por el radio del robot. Las celdas que se "ganan" al
         #    dilatar (estaban libres y ahora estan junto a un obstaculo)
         #    se marcan como INFLATED. A* las trata como bloqueadas pero

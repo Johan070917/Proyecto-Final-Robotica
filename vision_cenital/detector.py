@@ -207,7 +207,7 @@ ASPECT_TOL     = (0.45, 2.20)  # tolerancia para cubos / zonas
 #     y confundirse con una zona).
 #   - Mejor test: erosionar la mascara. Un cubo solido sobrevive (queda un
 #     "nucleo" central). Una zona con X de cinta delgada se borra entera.
-FILL_ZONE_MAX       = 0.55     # fill maximo para ser ZONE
+FILL_ZONE_MAX       = 0.65     # fill maximo para ser ZONE
 CORE_FILL_CUBE_MIN  = 0.05     # >= 5% del bbox sobrevive a la erosion -> CUBE
 ERODE_KERNEL_REL    = 0.20     # erosion del 20% del lado del bbox
 
