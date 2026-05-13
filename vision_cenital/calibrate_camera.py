@@ -51,7 +51,7 @@ import numpy as np  # noqa: E402
 
 # ---- AJUSTA ESTOS A TU TABLERO ---------------------------------------------
 PATTERN_SIZE   = (9, 6)        # esquinas INTERNAS (no casillas)
-SQUARE_SIZE_MM = 23.0          # lado real de una casilla en milimetros
+SQUARE_SIZE_MM = 23.2          # lado real de una casilla en milimetros
 # -----------------------------------------------------------------------------
 
 IMAGES_DIR     = os.path.join(os.path.dirname(__file__), 'calib_images')
@@ -85,9 +85,19 @@ def capture_mode(camera, width, height):
         if not ok:
             continue
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        # Escalar x2 antes de buscar: ayuda cuando el tablero ocupa poco frame
+        # (camara alta, tablero pequeno). La deteccion se hace en la imagen
+        # grande y las esquinas se escalan de vuelta al tamano original.
+        scale = 2
+        gray_big = cv2.resize(gray, None, fx=scale, fy=scale,
+                              interpolation=cv2.INTER_LINEAR)
         found, corners = cv2.findChessboardCorners(
-            gray, PATTERN_SIZE,
-            flags=cv2.CALIB_CB_ADAPTIVE_THRESH + cv2.CALIB_CB_FAST_CHECK)
+            gray_big, PATTERN_SIZE,
+            flags=(cv2.CALIB_CB_ADAPTIVE_THRESH
+                   + cv2.CALIB_CB_NORMALIZE_IMAGE
+                   + cv2.CALIB_CB_FILTER_QUADS))
+        if found:
+            corners = corners / scale  # devolver coordenadas al espacio original
 
         vis = frame.copy()
         if found:
@@ -129,6 +139,7 @@ def solve_mode():
 
     obj_points = []
     img_points = []
+    files_used = []
     img_size = None
     used = 0
     rejected = 0
@@ -142,9 +153,16 @@ def solve_mode():
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         if img_size is None:
             img_size = (gray.shape[1], gray.shape[0])
+        scale = 2
+        gray_big = cv2.resize(gray, None, fx=scale, fy=scale,
+                              interpolation=cv2.INTER_LINEAR)
         found, corners = cv2.findChessboardCorners(
-            gray, PATTERN_SIZE,
-            flags=cv2.CALIB_CB_ADAPTIVE_THRESH + cv2.CALIB_CB_NORMALIZE_IMAGE)
+            gray_big, PATTERN_SIZE,
+            flags=(cv2.CALIB_CB_ADAPTIVE_THRESH
+                   + cv2.CALIB_CB_NORMALIZE_IMAGE
+                   + cv2.CALIB_CB_FILTER_QUADS))
+        if found:
+            corners = corners / scale
         if not found:
             print(f"  RECHAZADA (no tablero): {os.path.basename(f)}")
             rejected += 1
@@ -154,6 +172,7 @@ def solve_mode():
             gray, corners, (11, 11), (-1, -1), criteria)
         obj_points.append(objp)
         img_points.append(corners)
+        files_used.append(f)
         used += 1
         print(f"  OK: {os.path.basename(f)}")
 
@@ -162,10 +181,24 @@ def solve_mode():
 
     print(f"\nResolviendo con {used} imagenes (rechazadas {rejected})...")
     rms, K, dist, rvecs, tvecs = cv2.calibrateCamera(
-        obj_points, img_points, img_size, None, None)
+        obj_points, img_points, img_size, None, None,
+        flags=cv2.CALIB_RATIONAL_MODEL)
+
+    # Error por foto: util para identificar y borrar las que mas danan el RMS
+    per_img = []
+    for i, (objp_i, imgp_i, rvec, tvec) in enumerate(
+            zip(obj_points, img_points, rvecs, tvecs)):
+        proj, _ = cv2.projectPoints(objp_i, rvec, tvec, K, dist)
+        err = cv2.norm(imgp_i, proj, cv2.NORM_L2) / len(proj)
+        per_img.append((err, files_used[i]))
+    per_img.sort(reverse=True)
+    print("\nError por foto (de mayor a menor) -- borra las peores si RMS > 0.5:")
+    for err, fname in per_img:
+        tag = " <-- BORRAR" if err > 1.5 else (" <-- revisar" if err > 0.8 else "")
+        print(f"  {err:.3f} px  {os.path.basename(fname)}{tag}")
 
     print(f"\nRMS reproyeccion: {rms:.4f} px  "
-          f"({'EXCELENTE' if rms < 0.3 else 'BIEN' if rms < 0.5 else 'mejorable, considera tomar mas fotos / variar mas el angulo'})")
+          f"({'EXCELENTE' if rms < 0.3 else 'BIEN' if rms < 0.5 else 'ALTO - borra las fotos marcadas BORRAR y vuelve a correr --solve'})")
     print(f"Resolucion: {img_size[0]}x{img_size[1]}")
     print(f"\nMatriz K:\n{K}")
     print(f"\nCoeficientes de distorsion (k1, k2, p1, p2, k3): {dist.ravel()}")

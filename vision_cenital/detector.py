@@ -26,6 +26,7 @@ Teclas dentro de la ventana:
     q  salir
     s  guardar snapshot de el frame actual
     h  esconder/mostrar overlay
+    g  esconder/mostrar ventana de grid de ocupacion
 """
 
 import argparse
@@ -42,6 +43,8 @@ os.environ['OPENCV_VIDEOIO_MSMF_ENABLE_HW_TRANSFORMS'] = '0'
 import cv2  # noqa: E402
 import numpy as np  # noqa: E402
 
+from occupancy_grid import OccupancyGrid  # noqa: E402
+
 try:
     from pygrabber.dshow_graph import FilterGraph
     HAS_PYGRABBER = True
@@ -51,6 +54,8 @@ except ImportError:
 
 CAMERA_PARAMS_FILE = os.path.join(os.path.dirname(__file__),
                                   'camera_params.json')
+HOMOGRAPHY_FILE    = os.path.join(os.path.dirname(__file__),
+                                  'homography.json')
 
 
 class Undistorter:
@@ -86,12 +91,54 @@ class Undistorter:
             return frame
         h, w = frame.shape[:2]
         if self._size != (w, h):
+            # alpha=0: recorta los bordes curvos negros que crea undistort.
+            # Sin esto, esas zonas negras forman un contorno gigante que
+            # envuelve todo el campo y oculta los obstaculos al usar
+            # RETR_EXTERNAL. Se pierde un poco de campo de vision en las
+            # esquinas pero la imagen queda limpia.
             self.new_K, _ = cv2.getOptimalNewCameraMatrix(
-                self.K, self.dist, (w, h), 1, (w, h))
+                self.K, self.dist, (w, h), 0, (w, h))
             self.map1, self.map2 = cv2.initUndistortRectifyMap(
                 self.K, self.dist, None, self.new_K, (w, h), cv2.CV_16SC2)
             self._size = (w, h)
         return cv2.remap(frame, self.map1, self.map2, cv2.INTER_LINEAR)
+
+
+class Homography:
+    """Convierte puntos de imagen (px, py) a coordenadas reales (x_cm, y_cm).
+
+    Carga homography.json si existe. Si no, queda deshabilitado y el detector
+    funciona igual pero sin coordenadas mundiales.
+    """
+
+    def __init__(self):
+        self.enabled = False
+        self.H = None
+        self.field_w_cm = None
+        self.field_h_cm = None
+        if os.path.exists(HOMOGRAPHY_FILE):
+            try:
+                with open(HOMOGRAPHY_FILE) as fh:
+                    data = json.load(fh)
+                self.H = np.array(data['homography'], dtype=np.float64)
+                self.field_w_cm = float(data['field_width_cm'])
+                self.field_h_cm = float(data['field_height_cm'])
+                self.enabled = True
+                print(f"[homography] Cargado {HOMOGRAPHY_FILE} "
+                      f"(campo {self.field_w_cm:.0f}x{self.field_h_cm:.0f} cm)")
+            except Exception as exc:
+                print(f"[homography] No pude cargar: {exc}")
+
+    def to_cm(self, points):
+        """Convierte una lista de (px, py) a lista de (x_cm, y_cm).
+
+        Devuelve None si no esta habilitado o la lista es vacia.
+        """
+        if not self.enabled or not points:
+            return None
+        pts = np.array([[p] for p in points], dtype=np.float32)
+        out = cv2.perspectiveTransform(pts, self.H)
+        return [(float(p[0, 0]), float(p[0, 1])) for p in out]
 
 
 class LatestFrameReader:
@@ -333,6 +380,14 @@ def detect_black_structures(hsv):
 
 
 # -----------------------------------------------------------------------------
+def _cm_label(d):
+    """Devuelve string '(x,y)cm' si la deteccion tiene pos_cm, si no ''."""
+    if 'pos_cm' in d and d['pos_cm'] is not None:
+        x_cm, y_cm = d['pos_cm']
+        return f"({x_cm:.0f},{y_cm:.0f})cm"
+    return ""
+
+
 def annotate(frame, color_dets, obstacles, walls=None):
     # Dibujar paredes primero (debajo del resto)
     if walls:
@@ -357,12 +412,22 @@ def annotate(frame, color_dets, obstacles, walls=None):
             label = f"{color} {d['kind']} f={d['fill']:.2f}"
             cv2.putText(frame, label, (x, max(0, y - 6)),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, bgr, 2)
+            cm_lbl = _cm_label(d)
+            if cm_lbl:
+                cv2.putText(frame, cm_lbl, (x, y + h + 15),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, bgr, 1,
+                            cv2.LINE_AA)
 
     for o in obstacles:
         x, y, w, h = o['bbox']
         cv2.rectangle(frame, (x, y), (x + w, y + h), (60, 60, 60), 2)
         cv2.putText(frame, "OBST", (x, max(0, y - 6)),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, (60, 60, 60), 2)
+        cm_lbl = _cm_label(o)
+        if cm_lbl:
+            cv2.putText(frame, cm_lbl, (x, y + h + 15),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (60, 60, 60), 1,
+                        cv2.LINE_AA)
     return frame
 
 
@@ -385,6 +450,33 @@ def _bbox_overlap_ratio(a, b):
 # Si un obstaculo solapa mas que este ratio con un objeto de color, es un
 # falso positivo (sombra sobre un cubo, etc.) y se descarta.
 OBST_OVERLAP_THRESHOLD = 0.3
+
+
+def attach_world_coords(homography, color_dets, obstacles, walls):
+    """Anade el campo 'pos_cm' a cada deteccion con su posicion mundial.
+
+    Si la homografia no esta habilitada, no hace nada.
+    """
+    if not homography.enabled:
+        return
+
+    targets = []  # lista de (det_dict, center_px)
+    for dets in color_dets.values():
+        for d in dets:
+            targets.append((d, d['center']))
+    for o in obstacles:
+        targets.append((o, o['center']))
+    for w in walls:
+        x, y, ww, wh = w['bbox']
+        w['center'] = (x + ww // 2, y + wh // 2)
+        targets.append((w, w['center']))
+
+    if not targets:
+        return
+    centers_px = [c for _, c in targets]
+    cms = homography.to_cm(centers_px)
+    for (d, _), cm in zip(targets, cms):
+        d['pos_cm'] = cm
 
 
 def process_frame(frame):
@@ -684,6 +776,14 @@ def main():
                              'la iluminacion cambia mucho.')
     parser.add_argument('--list', action='store_true',
                         help='Listar todas las camaras detectables y salir.')
+    parser.add_argument('--cell-cm', type=float, default=5.0,
+                        help='Tamano de celda del occupancy grid (cm). '
+                             'Default 5. Menor = mas resolucion pero A* mas lento.')
+    parser.add_argument('--robot-radius', type=float, default=15.0,
+                        help='Radio del robot en cm para inflar obstaculos en '
+                             'el grid. Default 15. Pon 0 para no inflar.')
+    parser.add_argument('--no-grid', action='store_true',
+                        help='No construir/mostrar el occupancy grid.')
     args = parser.parse_args()
 
     if args.list:
@@ -691,6 +791,19 @@ def main():
         return
 
     undistort = Undistorter()
+    homography = Homography()
+
+    grid_builder = None
+    if not args.no_grid and homography.enabled:
+        grid_builder = OccupancyGrid(homography,
+                                     cell_cm=args.cell_cm,
+                                     robot_radius_cm=args.robot_radius)
+        print(f"[grid] {grid_builder.rows}x{grid_builder.cols} celdas "
+              f"de {args.cell_cm:g} cm (radio robot {args.robot_radius:g} cm)")
+    elif args.no_grid:
+        print("[grid] desactivado por --no-grid")
+    else:
+        print("[grid] desactivado: falta homography.json")
 
     # Resolver indice de camara. Prioridad:
     #  1. Si el usuario paso --camera N explicito -> usar tal cual.
@@ -730,10 +843,19 @@ def main():
         if frame is None:
             raise SystemExit(f"No pude leer {args.image}")
         frame = undistort(frame)
-        color_dets, obstacles, walls, _ = process_frame(frame)
+        color_dets, obstacles, walls, wall_mask = process_frame(frame)
+        attach_world_coords(homography, color_dets, obstacles, walls)
         _print_summary(color_dets, obstacles, walls)
         out = annotate(frame.copy(), color_dets, obstacles, walls)
         cv2.imshow('Detector (imagen)', out)
+        if grid_builder is not None:
+            occ = grid_builder.build(wall_mask, obstacles)
+            grid_img = grid_builder.render(occ, color_dets=color_dets)
+            cv2.imshow('Occupancy grid (cm)', grid_img)
+            s = grid_builder.stats(occ)
+            print(f"  grid: libre={s['pct_free']:.1f}%  "
+                  f"pared={s['wall']}  obst={s['obstacle']}  "
+                  f"margen={s['inflated']}")
         print("Pulsa cualquier tecla para cerrar.")
         cv2.waitKey(0)
         cv2.destroyAllWindows()
@@ -753,8 +875,11 @@ def main():
     cap = open_camera(args.camera, args.width, args.height, args.backend,
                       manual_exposure=not args.auto_camera)
     reader = LatestFrameReader(cap)
-    print("Detector cenital corriendo. q=salir, s=snapshot, h=toggle overlay")
+    print("Detector cenital corriendo. q=salir, s=snapshot, h=toggle overlay, "
+          "g=toggle grid")
     show_overlay = True
+    show_grid = grid_builder is not None
+    grid_win = 'Occupancy grid (cm)'
     last_log = 0.0
     fps_count = 0
     fps_display = 0.0
@@ -766,7 +891,8 @@ def main():
                 time.sleep(0.005)
                 continue
             frame = undistort(frame)
-            color_dets, obstacles, walls, _ = process_frame(frame)
+            color_dets, obstacles, walls, wall_mask = process_frame(frame)
+            attach_world_coords(homography, color_dets, obstacles, walls)
 
             fps_count += 1
             now_perf = time.perf_counter()
@@ -785,9 +911,20 @@ def main():
                         cv2.LINE_AA)
             cv2.imshow('Detector cenital', out)
 
+            occ = None
+            if show_grid and grid_builder is not None:
+                occ = grid_builder.build(wall_mask, obstacles)
+                grid_img = grid_builder.render(occ, color_dets=color_dets)
+                cv2.imshow(grid_win, grid_img)
+
             now = time.time()
             if now - last_log > 1.0:
                 _print_summary(color_dets, obstacles, walls, compact=True)
+                if occ is not None:
+                    s = grid_builder.stats(occ)
+                    print(f"  grid: libre={s['pct_free']:.1f}%  "
+                          f"pared={s['wall']}  obst={s['obstacle']}  "
+                          f"margen={s['inflated']}")
                 last_log = now
 
             k = cv2.waitKey(1) & 0xFF
@@ -795,6 +932,10 @@ def main():
                 break
             if k == ord('h'):
                 show_overlay = not show_overlay
+            if k == ord('g') and grid_builder is not None:
+                show_grid = not show_grid
+                if not show_grid:
+                    cv2.destroyWindow(grid_win)
             if k == ord('s'):
                 fn = f"snapshot_{int(time.time())}.png"
                 cv2.imwrite(fn, frame)
