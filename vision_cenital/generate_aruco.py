@@ -111,8 +111,11 @@ def main():
                     (qz_px, total - qz_px // 3),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.6, (80, 80, 80), 2,
                     cv2.LINE_AA)
-        # Flecha "FRENTE" apuntando al lado izquierdo del marcador (es el
-        # lado X+ en el sistema interno de ArUco)
+        # Flecha "FRENTE" saliendo por el lado IZQUIERDO del cuadrado negro.
+        # El detector usa ese mismo lado como "frente del robot", asi que
+        # pega el marcador con esta flecha apuntando hacia donde va el
+        # frente del robot. Si lo orientas distinto el angulo saldra
+        # desfasado 90/180/270 grados.
         ay = qz_px + marker_px // 2
         ax1 = qz_px // 2 - 10
         ax2 = qz_px // 2 + 20

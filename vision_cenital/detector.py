@@ -44,6 +44,9 @@ import cv2  # noqa: E402
 import numpy as np  # noqa: E402
 
 from occupancy_grid import OccupancyGrid  # noqa: E402
+from aruco_detector import RobotDetector  # noqa: E402
+from pathfinding import astar, simplify_path, path_length_cm  # noqa: E402
+import mission  # noqa: E402
 
 try:
     from pygrabber.dshow_graph import FilterGraph
@@ -784,6 +787,14 @@ def main():
                              'el grid. Default 15. Pon 0 para no inflar.')
     parser.add_argument('--no-grid', action='store_true',
                         help='No construir/mostrar el occupancy grid.')
+    parser.add_argument('--robot-marker-id', type=int, default=0,
+                        help='ID del marcador ArUco pegado al robot. '
+                             'Default 0.')
+    parser.add_argument('--robot-marker-cm', type=float, default=10.0,
+                        help='Tamano fisico del lado del marcador en cm. '
+                             'Default 10.')
+    parser.add_argument('--no-aruco', action='store_true',
+                        help='No detectar el ArUco del robot.')
     args = parser.parse_args()
 
     if args.list:
@@ -804,6 +815,17 @@ def main():
         print("[grid] desactivado por --no-grid")
     else:
         print("[grid] desactivado: falta homography.json")
+
+    robot_detector = None
+    if not args.no_aruco:
+        robot_detector = RobotDetector(
+            homography=homography,
+            marker_id=args.robot_marker_id,
+            marker_size_cm=args.robot_marker_cm)
+        print(f"[aruco] buscando marcador id={args.robot_marker_id} "
+              f"({args.robot_marker_cm:g} cm)")
+    else:
+        print("[aruco] desactivado por --no-aruco")
 
     # Resolver indice de camara. Prioridad:
     #  1. Si el usuario paso --camera N explicito -> usar tal cual.
@@ -847,10 +869,23 @@ def main():
         attach_world_coords(homography, color_dets, obstacles, walls)
         _print_summary(color_dets, obstacles, walls)
         out = annotate(frame.copy(), color_dets, obstacles, walls)
+        robot_pose = None
+        if robot_detector is not None:
+            robot_pose = robot_detector.detect(frame)
+            if robot_pose is not None:
+                robot_detector.draw_on_frame(out, robot_pose)
+                if robot_pose['pos_cm'] is not None:
+                    x, y = robot_pose['pos_cm']
+                    print(f"  robot: ({x:.1f}, {y:.1f}) cm, "
+                          f"{robot_pose['angle_deg']:+.1f} deg")
+            else:
+                print("  robot: NO detectado")
         cv2.imshow('Detector (imagen)', out)
         if grid_builder is not None:
             occ = grid_builder.build(wall_mask, obstacles)
             grid_img = grid_builder.render(occ, color_dets=color_dets)
+            if robot_detector is not None and robot_pose is not None:
+                robot_detector.draw_on_grid(grid_img, robot_pose, grid_builder)
             cv2.imshow('Occupancy grid (cm)', grid_img)
             s = grid_builder.stats(occ)
             print(f"  grid: libre={s['pct_free']:.1f}%  "
@@ -876,7 +911,8 @@ def main():
                       manual_exposure=not args.auto_camera)
     reader = LatestFrameReader(cap)
     print("Detector cenital corriendo. q=salir, s=snapshot, h=toggle overlay, "
-          "g=toggle grid")
+          "g=toggle grid, c=limpiar objetivo/plan, p=planificar mision, "
+          "clic en grid=fijar objetivo")
     show_overlay = True
     show_grid = grid_builder is not None
     grid_win = 'Occupancy grid (cm)'
@@ -884,6 +920,29 @@ def main():
     fps_count = 0
     fps_display = 0.0
     fps_t0 = time.perf_counter()
+
+    # Estado del A*: el clic en la ventana del grid actualiza goal_cell.
+    # mouse_state es una lista de un solo elemento para que el callback
+    # pueda modificarlo (las closures de Python no pueden reasignar).
+    goal_cell = [None]
+    grid_scale = [6]  # se reasigna en cuanto sepamos el tamano real
+
+    def on_grid_click(event, x, y, flags, param):
+        if event == cv2.EVENT_LBUTTONDOWN and grid_builder is not None:
+            scale = grid_scale[0]
+            col = int(x // scale)
+            row = int(y // scale)
+            if 0 <= row < grid_builder.rows and 0 <= col < grid_builder.cols:
+                goal_cell[0] = (row, col)
+                x_cm = (col + 0.5) * grid_builder.cell_cm
+                y_cm = (row + 0.5) * grid_builder.cell_cm
+                print(f"[goal] celda ({row},{col}) = "
+                      f"({x_cm:.0f}, {y_cm:.0f}) cm")
+
+    grid_mouse_registered = [False]
+
+    # Plan de mision: dict devuelto por mission.plan() o None.
+    mission_plan = [None]
     try:
         while True:
             ok, frame = reader.read()
@@ -902,8 +961,14 @@ def main():
                 fps_count = 0
                 fps_t0 = now_perf
 
+            robot_pose = None
+            if robot_detector is not None:
+                robot_pose = robot_detector.detect(frame)
+
             if show_overlay:
                 out = annotate(frame.copy(), color_dets, obstacles, walls)
+                if robot_pose is not None:
+                    robot_detector.draw_on_frame(out, robot_pose)
             else:
                 out = frame.copy()
             cv2.putText(out, f"FPS: {fps_display:.1f}", (10, 28),
@@ -912,10 +977,38 @@ def main():
             cv2.imshow('Detector cenital', out)
 
             occ = None
+            path = None
             if show_grid and grid_builder is not None:
                 occ = grid_builder.build(wall_mask, obstacles)
                 grid_img = grid_builder.render(occ, color_dets=color_dets)
+
+                # Planificacion A* si tenemos robot y objetivo
+                if (robot_pose is not None and robot_pose['pos_cm'] is not None
+                        and goal_cell[0] is not None):
+                    x_cm, y_cm = robot_pose['pos_cm']
+                    start_cell = grid_builder.cm_to_cell(x_cm, y_cm)
+                    if start_cell is not None:
+                        path = astar(occ, start_cell, goal_cell[0])
+                        if path is not None:
+                            path = simplify_path(path)
+
+                scale = grid_img.shape[0] / grid_builder.rows
+                grid_scale[0] = scale
+                if path is not None or goal_cell[0] is not None:
+                    grid_builder.draw_path(grid_img, path,
+                                           scale=scale,
+                                           goal=goal_cell[0])
+
+                if mission_plan[0] is not None:
+                    mission.draw_plan(grid_img, mission_plan[0], grid_builder)
+
+                if robot_pose is not None:
+                    robot_detector.draw_on_grid(grid_img, robot_pose,
+                                                grid_builder)
                 cv2.imshow(grid_win, grid_img)
+                if not grid_mouse_registered[0]:
+                    cv2.setMouseCallback(grid_win, on_grid_click)
+                    grid_mouse_registered[0] = True
 
             now = time.time()
             if now - last_log > 1.0:
@@ -925,6 +1018,20 @@ def main():
                     print(f"  grid: libre={s['pct_free']:.1f}%  "
                           f"pared={s['wall']}  obst={s['obstacle']}  "
                           f"margen={s['inflated']}")
+                if robot_detector is not None:
+                    if robot_pose is not None and robot_pose['pos_cm']:
+                        x, y = robot_pose['pos_cm']
+                        print(f"  robot: ({x:.1f}, {y:.1f}) cm, "
+                              f"{robot_pose['angle_deg']:+.1f} deg")
+                    else:
+                        print("  robot: NO detectado")
+                if goal_cell[0] is not None and grid_builder is not None:
+                    if path is not None:
+                        dist = path_length_cm(path, grid_builder.cell_cm)
+                        print(f"  path:  {len(path)} waypoints, "
+                              f"~{dist:.0f} cm")
+                    else:
+                        print("  path:  NO hay ruta al objetivo")
                 last_log = now
 
             k = cv2.waitKey(1) & 0xFF
@@ -936,6 +1043,21 @@ def main():
                 show_grid = not show_grid
                 if not show_grid:
                     cv2.destroyWindow(grid_win)
+                    grid_mouse_registered[0] = False
+            if k == ord('c'):
+                goal_cell[0] = None
+                mission_plan[0] = None
+                print("[goal] limpiado, plan limpiado")
+            if k == ord('p'):
+                if (robot_pose is None or robot_pose.get('pos_cm') is None
+                        or grid_builder is None or occ is None):
+                    print("[mission] falta robot/grid para planificar")
+                else:
+                    mission_plan[0] = mission.plan(
+                        robot_pose['pos_cm'], color_dets,
+                        grid_builder, occ)
+                    print("[mission] plan calculado:")
+                    print(mission.summary(mission_plan[0]))
             if k == ord('s'):
                 fn = f"snapshot_{int(time.time())}.png"
                 cv2.imwrite(fn, frame)

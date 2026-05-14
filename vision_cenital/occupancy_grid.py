@@ -251,6 +251,32 @@ class OccupancyGrid:
 
         return img
 
+    def draw_path(self, grid_img, path, scale=None, goal=None):
+        """Dibuja una ruta de celdas sobre la imagen del grid.
+
+        path: lista de (row, col) devuelta por astar().
+        scale: pixeles por celda. Si None, se infiere de grid_img.shape.
+        goal: (row, col) del objetivo a marcar con un circulo, opcional.
+        """
+        if scale is None:
+            scale = grid_img.shape[0] / self.rows
+        if path:
+            pts = np.array(
+                [(int((c + 0.5) * scale), int((r + 0.5) * scale))
+                 for (r, c) in path], dtype=np.int32)
+            cv2.polylines(grid_img, [pts.reshape(-1, 1, 2)],
+                          False, (0, 200, 0), 2, cv2.LINE_AA)
+            # Waypoints intermedios como puntos pequenos
+            for (x, y) in pts[1:-1]:
+                cv2.circle(grid_img, (int(x), int(y)), 2, (0, 120, 0), -1)
+        if goal is not None:
+            gx = int((goal[1] + 0.5) * scale)
+            gy = int((goal[0] + 0.5) * scale)
+            cv2.drawMarker(grid_img, (gx, gy), (0, 0, 220),
+                           cv2.MARKER_CROSS, 16, 2)
+            cv2.circle(grid_img, (gx, gy), 8, (0, 0, 220), 2)
+        return grid_img
+
     def stats(self, grid):
         """Devuelve dict con cuentas de cada tipo de celda y % libres."""
         total = grid.size
