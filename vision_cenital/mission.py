@@ -31,24 +31,30 @@ Asunciones de esta primera version:
     diferente aunque luego acaben en la misma zona.
   - Se planifica AL CENTRO del cubo y AL CENTRO de la zona. Los sensores
     ToF / finales de carrera del robot se encargan de la aproximacion final.
+
+TODO para la prueba final con 3 cubos por color:
+  - Filtrar cubos que ya esten apilados en su zona. Detectable porque
+    estaran a < ~20 cm del centro de la zona y el plan no debe contarlos
+    como tareas pendientes. Se anade con un parametro deliver_radius_cm.
+  - Si el robot agarra un cubo y la camara lo sigue viendo en su pos
+    original, no es un problema: el plan se recalcula cada vez que
+    pulses 'p', asi que al re-planificar el cubo agarrado seguramente
+    ya no se ve (esta sobre el robot u oculto por el).
 """
 
 import cv2
 import numpy as np
 
-from pathfinding import astar, simplify_path, path_length_cm
+from pathfinding import astar, simplify_path, path_length_cm, clearance_field
 
 
-# Colores para dibujar cada paso de la mision en el grid (BGR).
-# Se ciclan si hay mas tareas que colores disponibles.
-ROUTE_COLORS = [
-    (0,   200, 0),    # verde
-    (220, 180, 0),    # cian
-    (200, 0,   200),  # magenta
-    (0,   140, 220),  # naranja
-    (180, 180, 0),    # turquesa
-    (0,   80,  220),  # rojo-naranja
-]
+# Color de la ruta = color del cubo destino (BGR, igual paleta que detector).
+# El orden de ejecucion se ve por el numero 1/2/3 dentro del circulo.
+ROUTE_COLOR_BY_CUBE = {
+    'RED':   (0,   0,   255),
+    'GREEN': (0,   220, 0),
+    'BLUE':  (255, 80,  0),
+}
 
 
 def _collect_cubes_and_zones(color_dets):
@@ -107,10 +113,23 @@ def plan(robot_pos_cm, color_dets, grid_builder, occupancy):
         else:
             valid.append(cube)
 
+    # Campo de holgura: una sola vez, se reutiliza en todas las llamadas
+    # A* del greedy (cubo->cubo y cubo->zona).
+    clearance = clearance_field(occupancy)
+
     tasks = []
     total_cm = 0.0
     current_cm = robot_pos_cm
     remaining = list(valid)
+
+    # Sanity check: robot fuera del campo no puede planificar
+    if grid_builder.cm_to_cell(*current_cm) is None:
+        return {
+            'tasks':    [],
+            'skipped':  cubes,
+            'total_cm': 0.0,
+            'error':    'robot fuera del campo',
+        }
 
     while remaining:
         best = None
@@ -126,7 +145,7 @@ def plan(robot_pos_cm, color_dets, grid_builder, occupancy):
             goal_cell = grid_builder.cm_to_cell(*cube['pos_cm'])
             if goal_cell is None:
                 continue
-            r = astar(occupancy, start_cell, goal_cell)
+            r = astar(occupancy, start_cell, goal_cell, clearance=clearance)
             if r is None:
                 continue
             d = path_length_cm(r, grid_builder.cell_cm)
@@ -144,7 +163,8 @@ def plan(robot_pos_cm, color_dets, grid_builder, occupancy):
         zone_cm = zones[best['color']]
         cube_cell = grid_builder.cm_to_cell(*best['pos_cm'])
         zone_cell = grid_builder.cm_to_cell(*zone_cm)
-        route_to_zone = astar(occupancy, cube_cell, zone_cell)
+        route_to_zone = astar(occupancy, cube_cell, zone_cell,
+                               clearance=clearance)
         if route_to_zone is None:
             # No hay ruta hasta la zona: descartar este cubo y seguir
             skipped.append(best)
@@ -172,6 +192,43 @@ def plan(robot_pos_cm, color_dets, grid_builder, occupancy):
     }
 
 
+def _draw_dashed_polyline(img, pts, color, thickness=2,
+                          dash_px=8, gap_px=6):
+    """Polilinea discontinua con dashes de longitud fija en pixeles.
+
+    Recorre la polilinea acumulando distancia para que el patron sea
+    uniforme independientemente de cuantos vertices tenga (importante
+    porque el path A* ya viene simplificado a esquinas).
+    """
+    if len(pts) < 2:
+        return
+    drawing = True
+    remaining = float(dash_px)
+    for i in range(len(pts) - 1):
+        p0 = np.asarray(pts[i], dtype=np.float64)
+        p1 = np.asarray(pts[i + 1], dtype=np.float64)
+        seg = p1 - p0
+        seg_len = float(np.hypot(seg[0], seg[1]))
+        if seg_len < 1e-6:
+            continue
+        direction = seg / seg_len
+        traveled = 0.0
+        while traveled < seg_len:
+            step = min(remaining, seg_len - traveled)
+            a = p0 + direction * traveled
+            b = p0 + direction * (traveled + step)
+            if drawing:
+                cv2.line(img,
+                         (int(round(a[0])), int(round(a[1]))),
+                         (int(round(b[0])), int(round(b[1]))),
+                         color, thickness, cv2.LINE_AA)
+            traveled += step
+            remaining -= step
+            if remaining <= 1e-6:
+                drawing = not drawing
+                remaining = float(dash_px if drawing else gap_px)
+
+
 def draw_plan(grid_img, plan_data, grid_builder):
     """Dibuja todas las rutas de la mision sobre la imagen del grid.
 
@@ -189,25 +246,29 @@ def draw_plan(grid_img, plan_data, grid_builder):
              for (r, c) in cells], dtype=np.int32)
 
     for i, task in enumerate(plan_data['tasks']):
-        color = ROUTE_COLORS[i % len(ROUTE_COLORS)]
+        color = ROUTE_COLOR_BY_CUBE.get(task['color'], (200, 200, 200))
         # Ruta al cubo: linea continua
         pts1 = _cells_to_pts(task['route_to_cube'])
         if len(pts1) >= 2:
             cv2.polylines(grid_img, [pts1.reshape(-1, 1, 2)],
                           False, color, 2, cv2.LINE_AA)
-        # Ruta a la zona: linea discontinua
+        # Ruta a la zona: linea discontinua por distancia (no por vertice,
+        # que con path simplificado se comeria tramos enteros).
         pts2 = _cells_to_pts(task['route_to_zone'])
         if len(pts2) >= 2:
-            # Dibujar la ruta como segmentos cortos alternos
-            for k in range(0, len(pts2) - 1, 2):
-                a = tuple(pts2[k])
-                b = tuple(pts2[min(k + 1, len(pts2) - 1)])
-                cv2.line(grid_img, a, b, color, 2, cv2.LINE_AA)
+            _draw_dashed_polyline(grid_img, pts2, color, thickness=2)
 
-        # Numero del paso encima del cubo
-        cube_px = pts1[-1]
-        cv2.circle(grid_img, tuple(cube_px), 12, (255, 255, 255), -1)
-        cv2.circle(grid_img, tuple(cube_px), 12, color, 2)
+        # Numero del paso encima del cubo. Si pts1 esta vacio (start==goal,
+        # pasa cuando el robot ya esta sobre el cubo) usamos la pos del cubo
+        # convertida desde cm.
+        if len(pts1) > 0:
+            cube_px = tuple(int(v) for v in pts1[-1])
+        else:
+            cx, cy = task['cube_cm']
+            cube_px = (int(cx / grid_builder.cell_cm * scale),
+                       int(cy / grid_builder.cell_cm * scale))
+        cv2.circle(grid_img, cube_px, 12, (255, 255, 255), -1)
+        cv2.circle(grid_img, cube_px, 12, color, 2)
         cv2.putText(grid_img, str(i + 1),
                     (cube_px[0] - 5, cube_px[1] + 5),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2, cv2.LINE_AA)
@@ -220,6 +281,8 @@ def summary(plan_data):
     if plan_data is None:
         return "(sin plan)"
     lines = []
+    if not plan_data['tasks']:
+        lines.append("  (sin tareas planificables)")
     for i, t in enumerate(plan_data['tasks'], 1):
         cx, cy = t['cube_cm']
         zx, zy = t['zone_cm']
@@ -228,9 +291,10 @@ def summary(plan_data):
             f"zona ({zx:.0f},{zy:.0f})   "
             f"{t['cm_to_cube']:.0f} + {t['cm_to_zone']:.0f} cm")
     if plan_data['skipped']:
+        colors = sorted({c['color'] for c in plan_data['skipped']})
         lines.append(
             f"  Descartados: {len(plan_data['skipped'])} "
-            f"(sin zona o sin ruta)")
+            f"({','.join(colors)} - sin zona o sin ruta)")
     lines.append(f"  TOTAL: {plan_data['total_cm']:.0f} cm "
                  f"en {len(plan_data['tasks'])} tareas")
     return "\n".join(lines)

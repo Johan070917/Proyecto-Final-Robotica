@@ -24,6 +24,7 @@ Uso:
 import heapq
 import math
 
+import cv2
 import numpy as np
 
 from occupancy_grid import FREE, INFLATED
@@ -31,12 +32,21 @@ from occupancy_grid import FREE, INFLATED
 
 _SQRT2 = math.sqrt(2.0)
 
-# Penalizacion al cruzar una celda INFLATED. Al ser > 1, A* prefiere FREE,
-# pero puede pasar por margenes inflados cuando el espacio libre se cierra
-# (p.ej. en pasillos estrechos donde la inflacion de ambas paredes se
-# solapa). Subir si quieres que el robot se pegue mas al centro de los
-# huecos; bajar si quieres que use el margen mas libremente.
-INFLATED_COST = 4.0
+# Coste de entrar en una celda = 1 + penalizacion por cercania a pared.
+# La penalizacion no es binaria: usa un campo de holgura (distancia en
+# celdas a la pared/obstaculo mas cercano) para que el coste BAJE cuanto
+# mas lejos de una pared estes. Eso crea un "valle" de coste minimo por
+# el centro de los pasillos, que es justo donde el robot debe ir para
+# alinearse con la cinta del seguidor de linea.
+#
+#   clear >= CLEARANCE_TARGET_CELLS  -> penalizacion 0 (espacio abierto)
+#   clear -> 0 (pegado a la pared)   -> penalizacion WALL_PENALTY
+#
+# Subir WALL_PENALTY = el robot se centra mas (acepta rodeos para
+# despegarse de paredes). Subir CLEARANCE_TARGET_CELLS = el gradiente
+# llega mas lejos de la pared (centra mejor en pasillos anchos).
+WALL_PENALTY           = 5.0
+CLEARANCE_TARGET_CELLS = 5.0
 
 # 8 vecinos: (dr, dc, coste). Los 4 primeros son rectos (coste 1), los 4
 # ultimos diagonales (coste sqrt(2)).
@@ -63,11 +73,30 @@ def _is_traversable(occ, r, c):
     return occ[r, c] in (FREE, INFLATED)
 
 
-def _enter_cost(occ, r, c):
-    """Multiplicador del coste de entrar en (r, c). FREE = 1, INFLATED > 1."""
-    if occ[r, c] == INFLATED:
-        return INFLATED_COST
-    return 1.0
+def clearance_field(occ):
+    """Distancia (en celdas) de cada celda a la pared/obstaculo mas cercano.
+
+    Las celdas transitables (FREE/INFLATED) son foreground; WALL/OBSTACLE
+    son las fuentes (distancia 0). Una celda pegada a una pared sale ~1;
+    el centro de un pasillo de media-anchura 3 celdas sale ~3.
+
+    Se calcula una vez por plan (el grid es ~80x42, microsegundos) y se
+    pasa a astar() para no recomputarlo en cada llamada greedy.
+    """
+    traversable = ((occ == FREE) | (occ == INFLATED)).astype(np.uint8)
+    # distanceTransform: distancia de cada pixel !=0 al 0 mas cercano.
+    return cv2.distanceTransform(traversable, cv2.DIST_L2, 3)
+
+
+def _enter_cost(clearance, r, c):
+    """Multiplicador del coste de entrar en (r, c).
+
+    1.0 en espacio abierto; sube suavemente hasta 1 + WALL_PENALTY al
+    pegarse a una pared. Gradiente continuo => A* prefiere el centro.
+    """
+    clear = float(clearance[r, c])
+    t = min(1.0, clear / CLEARANCE_TARGET_CELLS)   # 0 pared .. 1 abierto
+    return 1.0 + WALL_PENALTY * (1.0 - t)
 
 
 def _nearest_traversable(occ, cell, max_radius=20):
@@ -100,7 +129,7 @@ def _nearest_traversable(occ, cell, max_radius=20):
     return None
 
 
-def astar(occ, start, goal, allow_relax=True):
+def astar(occ, start, goal, allow_relax=True, clearance=None):
     """A* en grid 8-conectado.
 
     Args:
@@ -109,12 +138,17 @@ def astar(occ, start, goal, allow_relax=True):
         goal:  (row, col) objetivo.
         allow_relax: si start o goal caen sobre celda bloqueada, busca la
                      celda libre mas cercana en vez de fallar.
+        clearance: campo de holgura precalculado (clearance_field). Si es
+                   None se calcula aqui. Pasarlo cuando se llama a astar
+                   muchas veces sobre el mismo grid (planificador greedy).
 
     Devuelve:
         Lista de celdas [(r0,c0), (r1,c1), ...] incluyendo start y goal,
         o None si no hay ruta.
     """
     rows, cols = occ.shape
+    if clearance is None:
+        clearance = clearance_field(occ)
     if allow_relax:
         s = _nearest_traversable(occ, start)
         g = _nearest_traversable(occ, goal)
@@ -164,9 +198,10 @@ def astar(occ, start, goal, allow_relax=True):
                         or not _is_traversable(occ, cr, cc + dc)):
                     continue
 
-            # Coste de entrar en la celda: penaliza INFLATED para que A*
-            # prefiera quedarse en FREE cuando puede.
-            tentative = g_score[current] + step_cost * _enter_cost(occ, nr, nc)
+            # Coste de entrar en la celda: gradiente por cercania a pared
+            # (mas barato cuanto mas centrado), ver _enter_cost.
+            tentative = (g_score[current]
+                         + step_cost * _enter_cost(clearance, nr, nc))
             if tentative < g_score.get((nr, nc), float('inf')):
                 came_from[(nr, nc)] = current
                 g_score[(nr, nc)] = tentative
